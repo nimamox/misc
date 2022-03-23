@@ -1,0 +1,551 @@
+%Problem Set 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Sweave('C:/Klaus/AAEC5126/problemsets/ps1',syntax=SweaveSyntaxNoweb)
+
+%I) DEFINE DOCUMENTCLASS AND LOAD ALL REQUIRED PACKAGES
+
+\documentclass[11pt,reqno]{article}   %keep it simple
+\usepackage{hyperref}
+\usepackage{graphicx}      % for fancy graphics
+\usepackage{setspace}      % for basic formatting
+\usepackage{enumerate} 
+\usepackage[fleqn]{amsmath}
+\usepackage{enumitem}% for more flexibility with numbered lists
+\SweaveOpts{keep.source=TRUE}  %KEY - this preserves R formatting and comments
+
+% You may need to load all or some of these packages -
+%follow the instructions on our course web site under "Help with LaTex"
+
+%II) PREAMBLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{plain} %puts page number center bottom
+\setlength{\topmargin}{0in}
+\setlength{\textheight}{8.5in}
+\setlength{\oddsidemargin}{.0in}
+\setlength{\evensidemargin}{.0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\footskip}{.5in}
+\setlength{\parindent}{0in} %suppress indentation
+%\onehalfspacing
+
+\newcommand{\mlt}[1]{\mathbf{#1}} %matrix bold for Latin symbols
+\newcommand{\mgr}[1]{\boldsymbol{#1}}%matrix bold for Greek symbols
+\newcommand{\kR}{\tt R\rm{} }%shortcut for "R" symbol
+\newcommand{\ksp}{\vspace{0.1in}}   % insert some space between chunks
+%feel free to add your own shortcuts  - here a mine:
+\newcommand{\kl}{\left(}
+\newcommand{\kr}{\right)}
+\newcommand{\kll}{\left\{}
+\newcommand{\krr}{\right\}}
+\newcommand{\kmu}{\mgr{\mu}}
+\newcommand{\kpsi}{\mgr{\psi}}
+\newcommand{\kphi}{\mgr{\phi}}
+\newcommand{\kgam}{\mgr{\gamma}}
+\newcommand{\ktheta}{\mgr{\theta}}
+\newcommand{\kbeta}{\mgr{\beta}}
+\newcommand{\kdelta}{\mgr{\delta}}
+\newcommand{\kt}{^{\prime}}
+\newcommand{\kdel}{\partial}
+\newcommand{\kdot}{\kl . \kr}
+\newcommand{\keps}{\epsilon}
+\newcommand{\kx}{\mlt{x}}
+\newcommand{\kX}{\mlt{X}}
+\newcommand{\kV}{\mlt{V}}
+\newcommand{\kM}{\mlt{M}}
+\newcommand{\kP}{\mlt{P}}
+\newcommand{\ky}{\mlt{y}}
+\newcommand{\kb}{\mlt{b}}
+\newcommand{\ki}{\mlt{i}}
+\newcommand{\ke}{\mlt{e}}
+\newcommand{\klam}{\lambda}
+\newcommand{\kp}{\mlt{p}}
+\newcommand{\kprob}{\text{prob}}
+\newcommand{\kz}{\mlt{z}}
+\newcommand{\ksig}{\sigma^2}
+\newcommand{\kSig}{\mgr{\Sigma}}
+\newcommand{\klog}{\text{log}}
+\newcommand{\kols}{\kl \kX\kt\kX\kr^{-1}\kX\kt\ky}
+\newcommand{\kSSE}{\kl \ky-\kX\kb\kr\kt\kl\ky-\kX\kb\kr}
+
+\setlist{nolistsep,leftmargin=*} %tighter bullets - requires package enumitem
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+%III) TOP MATTER INFORMATION
+\title{Problem Set 1}
+\author{Nima Mohammadi \\ \href{mailto:nimamo@vt.edu}{\textbf{nimamo@vt.edu}}} %ENTER YOUR NAME HERE
+
+\maketitle %this comes at the end of the top matter to set it.
+
+%Set basic R-options upfront and load all required R packages:
+<<R1,echo=FALSE>>=
+rm(list = ls(all = TRUE))#first, clear R's workspace
+options(prompt = "R> ", digits = 4)
+setwd('/Users/nima/AAEC5126/HW1/')#change this directory as needed
+options(width=60) #so R-chunks don't run over margin
+tic<-proc.time() #start stop watch
+library("xtable")  #you may have to install this first -> Tools / Install Packages
+library("MASS") #for draws from the multivariate normal - install
+#this will print a copyrights notice on your pdf - ignore...
+set.seed(37)  #sets the random number generator so we can reproduce results
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Question 1: Omitting regressors under independence and dependence}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\textbf{Part A: Independence, Full Model}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{enumerate}
+\item
+Generate two independent, normally distributed regressors (= explanatory variables), one with mean 2 and std 1,
+the other with mean 3 and std 1.  Set the sample size to 1000 observations in each case. Call these variables
+x1 and x2
+<<chunk1-1,highlight=TRUE>>=
+n <- 1000
+x1mean <- 2
+x1std <- 1
+x1 <- matrix(rnorm(n, x1mean, x1std), n)
+x2mean <- 3
+x2std <- 1
+x2 <- matrix(rnorm(n, x2mean, x2std), n)
+@
+\newpage
+\item Create a scatterplot to examine the relationship between x1 and x2.
+\begin{figure}[!ht]
+\centering
+<<chunk1-2,fig=TRUE,floating=FALSE,width=7,echo=TRUE>>=
+plot(x1, x2)
+@
+
+\caption{Scatterplot of x1 and x2}
+\label{fig:scatter}
+\end{figure}
+
+\item Create a table of sample statistics, including the correlation coefficient
+
+<<chunk1-3>>=
+df <- data.frame("var"=c("$x_1$", "$x_2$"),
+                 "mean"=c(mean(x1), mean(x2)),
+                 "std"=c(sd(x1), sd(x2)),
+                 "min"=c(min(x1), min(x2)),
+                 "max"=c(max(x1), max(x2)),
+                 "correlation"=c(cor(x1, x2), cor(x1, x2))
+                 )
+@
+
+<<chunk1-3-table,results=tex,echo=FALSE>>=
+print(xtable(df, caption="Sample statistics for $x_1$ and $x_2$", digits=4), include.rownames=FALSE,
+latex.environment="center", caption.placement="top", table.placement="!h", sanitize.text.function=function(x){x})
+@
+
+\item Draw a normal(0,1) error term, define a vector of true parameters for the constant, x1, and x2 of
+$\left[1,1,-1\right]$, and build your dependent variable.
+<<chunk1-4>>=
+eps <- rnorm(n)
+X <- cbind(rep(1, n), x1, x2)
+bvec <- c(1, 1, -1)
+y <- X %*% bvec + eps
+@
+
+\item Run an OLS regression on the full model. Show the output table. Call this model "Independent, full"
+
+<<chunk1-5>>=
+bols <- solve(t(X) %*% X) %*% (t(X) %*% y)
+e <- y - X %*% bols
+k <- ncol(X)
+s2 <- (t(e) %*% e) / (n-k)
+Vb <- s2[1, 1] * solve(t(X) %*% X)
+se <- sqrt(diag(Vb))
+t <- bols / se
+SSRindep <- t(e) %*% e
+@
+
+<<chunk1-6>>=
+df2 <- data.frame(col1=c("constant", "$x_1$", "$x_2$"),
+                 col2=bvec,
+                 col3=bols,
+                 col4=se,
+                 col5=t
+                 )
+colnames(df2) <- c("variable", "true value", "estimate", "s.e.", "t")
+@
+<<chunk1-6-table,results=tex,echo=FALSE>>=
+print(xtable(df2, caption="OLS Estimation - Independent, Full", digits=4), include.rownames=FALSE,
+latex.environment="center", caption.placement="top", table.placement="!h", sanitize.text.function=function(x){x})
+#get rid of row counters, and center over decimal)
+
+@
+\end{enumerate}
+
+
+\textbf{Part B: Independence, Omitted}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{enumerate}
+\item
+Next, drop the last column in X (your x2).
+Update your ``k'' value accordingly.
+
+<<chunk2-1>>=
+X <- X[, -k]
+k <- ncol(X)
+@
+
+\item
+Re-run the regression and capture the output. Call this model "Independent, Omit".
+<<chunk2-2>>=
+bols <- solve(t(X) %*% X) %*% (t(X) %*% y)
+e <- y - X %*% bols
+s2 <- (t(e) %*% e) / (n-k)
+Vb <- s2[1, 1] * solve(t(X) %*% X)
+se <- sqrt(diag(Vb))
+t <- bols / se
+SSRindepOmit <- t(e) %*% e
+@
+<<chunk2-3>>=
+bvec <- c(1, 1)
+df3 <- data.frame(col1=c("constant", "$x_1$"),
+                 col2=bvec,
+                 col3=bols,
+                 col4=se,
+                 col5=t
+                 )
+colnames(df3) <- c("variable", "true value", "estimate", "s.e.", "t")
+@
+
+<<chunk2-3-table,results=tex,echo=FALSE>>=
+print(xtable(df3, caption="OLS Estimation - Independent, Omit", digits=4), include.rownames=FALSE,
+latex.environment="center", caption.placement="top", table.placement="!h", sanitize.text.function=function(x){x})
+#get rid of row counters, and center over decimal)
+
+@
+\item
+Comment on the estimated coefficient for x1 (with x2 omitted).
+Therefore, what can you conclude regarding the effects of an omitted variable that is independent from all included variables on the remaining coefficients?\\
+
+We can see that by omitting a relevant variable, namely x2, the estimated effects of the included variables change depending on the potential correlation that may exist between those variables and the ommited variable. Whereas the esimated value for coefficient of x1 is still very close to the true value, we can see that it has clearly impacted our estimation of the constant term. This results from the fact that x1 and x2 are independent.
+\end{enumerate}
+
+
+\textbf{Part C: Correlation, full model}\\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Continue with you original sweave file - \textbf{do NOT re-set the random number seed!}\\
+
+\begin{enumerate}
+\item
+Generate two correlated regressors (= explanatory variables), one with mean 2 and std 1, 
+the other with mean 3 and std 1, and with covariance (correlation in this case) of 0.8.  
+Set the sample size to 1000 as before.  
+Use the "mvrnorm" function in the MASS package to obtain the correlated draws (some help with this is given below)
+
+<<chunk3-1>>=
+m <- c(2, 3)
+V <- matrix(c(1, 0.8, 0.8, 1), nrow=2)
+X <- mvrnorm(n=n, m, V)
+x1 <- X[, 1]
+x2 <- X[, 2]
+@
+
+\item
+Generate a scatter plot and a table with sample statistics, including correlation
+
+<<chunk3-2,fig=TRUE,floating=FALSE,width=7,echo=TRUE>>=
+plot(x1, x2)
+@
+
+<<chunk3-3>>=
+df <- data.frame("var"=c("$x_1$", "$x_2$"),
+                 "mean"=c(mean(x1), mean(x2)),
+                 "std"=c(sd(x1), sd(x2)),
+                 "min"=c(min(x1), min(x2)),
+                 "max"=c(max(x1), max(x2)),
+                 "correlation"=c(cor(x1, x2), cor(x1, x2))
+                 )
+@
+
+<<chunk3-3-table,results=tex,echo=FALSE>>=
+print(xtable(df, caption="Sample statistics for $x_1$ and $x_2$", digits=4), include.rownames=FALSE,
+latex.environment="center", caption.placement="top", table.placement="!h", sanitize.text.function=function(x){x})
+@
+\item
+\textbf{Use the same betas and error draws from before} and compute a new $y$ variable.
+Run the full model. Call it "Correlated, full". Are there any noteworthy changes compared to the original model ("Independent, full")?
+<<chunk3-4>>=
+X <- cbind(rep(1, n), x1, x2)
+bvec <- c(1, 1, -1)
+y <- X %*% bvec + eps
+k <- ncol(X)
+
+bols <- solve(t(X) %*% X) %*% (t(X) %*% y)
+e <- y - X %*% bols
+s2 <- (t(e) %*% e) / (n-k)
+Vb <- s2[1, 1] * solve(t(X) %*% X)
+se <- sqrt(diag(Vb))
+t <- bols / se
+SSRcorr <- t(e) %*% e
+@
+
+<<chunk3-5>>=
+df4 <- data.frame(col1=c("constant", "$x_1$", "$x_2$"),
+                 col2=bvec,
+                 col3=bols,
+                 col4=se,
+                 col5=t
+                 )
+colnames(df4) <- c("variable", "true value", "estimate", "s.e.", "t")
+@
+
+<<chunk3-5-table,results=tex,echo=FALSE>>=
+print(xtable(df4, caption="OLS Estimation - Correlated, Full", digits=4), include.rownames=FALSE,
+latex.environment="center", caption.placement="top", table.placement="!h", sanitize.text.function=function(x){x})
+#get rid of row counters, and center over decimal)
+
+@
+
+We can observe that correlation within data makes the model less efficient. The standard error for the covariates have (negligibly?) increased. The t-value for x1 and x2 assumed almost half the prior values thereof, but remained relatively the same value for the constant term. Interestingly, for the "independent, full" model SSR value \Sexpr{formatC(SSRindep, format="f", digits=3)} is obtained which is greater than the corresponding value of \Sexpr{formatC(SSRcorr, format="f", digits=3)} for the "correlated, full" setting.
+
+\ksp 
+\item
+Omit x2, and estimate the model on the full sample. Call this model "Correlated, Omit"
+<<chunk3-6>>=
+X <- X[, -k]
+k <- ncol(X)
+bvec <- c(1, 1)
+bols <- solve(t(X) %*% X) %*% (t(X) %*% y)
+e <- y - X %*% bols
+s2 <- (t(e) %*% e) / (n-k)
+Vb <- s2[1, 1] * solve(t(X) %*% X)
+se <- sqrt(diag(Vb))
+t <- bols / se
+SSRcorrOmit <- t(e) %*% e
+@
+
+\ksp
+
+<<chunk3-7>>=
+df5 <- data.frame(col1=c("constant", "$x_1$"),
+                 col2=bvec,
+                 col3=bols,
+                 col4=se,
+                 col5=t
+                 )
+colnames(df5) <- c("variable", "true value", "estimate", "s.e.", "t")
+@
+
+<<chunk3-7-table,results=tex,echo=FALSE>>=
+print(xtable(df5, caption="OLS Estimation - Correlated, Omit", digits=4), include.rownames=FALSE,
+latex.environment="center", caption.placement="top", table.placement="!h", sanitize.text.function=function(x){x})
+#get rid of row counters, and center over decimal)
+
+@
+
+\item
+Comment on the estimated coefficient for x1 for each partial regression (with x2 omitted).
+Therefore, what can you conclude regarding the effects of an omitted variable that is 
+correlated with some included variables on the remaining coefficients?
+
+\ksp
+
+Our results empirically shows that omitted variable can be tolerated only if they are not correlated with independent variables that are already included in the analysis. While we still calculated reliable coefficient estimates for the independent model when we omitted a variable, this is not the case for the situation with correlated variables. Omitting a variable in the correlated setting has caused our estimation for both the constant term and x1 to be far from the true values. Here our assumption of independence between the error term and the regressors is violated and our estimates are misleading. 
+\end{enumerate}
+
+
+
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Question 2: Omitting a variable in the wage regression}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Continue with you original sweave file - \textbf{do NOT re-set the random number seed!}\\
+
+Consider our wage regression from \texttt{mod1\_2b}.
+\begin{enumerate}
+\item
+Load in the data and specify your dependent variable and your regression matrix.
+As before, drop "age".
+<<Q2-1>>=
+data <- read.table("/Users/nima/AAEC5126/data/wage1000.txt", 
+                   sep="\t", header=FALSE)
+colnames(data) <- c("wage", "female", "nonwhite", 
+                    "unionmember", "edu", 
+                    "experience", "age")
+data <- data[, -which(names(data) %in% c("age"))]
+@
+
+<<Q2-2>>=
+dftbl <- data.frame("var"=names(data), "means"=colMeans(data),
+                    "std"=apply(data, 2, sd), "min"=apply(data, 2, min),
+                    "max"=apply(data, 2, max))
+@
+
+<<Q2-2-table,results=tex,echo=FALSE>>=
+print(xtable(dftbl, caption="Sample statistics", digits=4), include.rownames=FALSE,
+latex.environment="center", caption.placement="top", table.placement="!h", sanitize.text.function=function(x){x})
+@
+
+The regressand (dependent variable) is "wage", and the regressors (independent variables) are all the other covariates, namely "female", "nonwhite", "unionmember", "edu" and "experience". The regression matrix is the matrix $\kbeta$ takes part in our regression $\ky=\kX\kbeta+\keps$ where $\ky$ and $\kX$ are the dependent variable and independent variables, respectively. 
+
+\item
+Capture the sample correlation across regressors (without the constant term).
+Show the resulting correlation matrix in your output.
+<<Q2-3>>=
+cormat <- cor(data[, -which(names(data) %in% c("wage"))])
+dftbl2 <- data.frame(cormat)
+@
+
+<<Q2-2-table,results=tex,echo=FALSE>>=
+print(xtable(dftbl2, caption="Correlation across regressors", digits=3), include.rownames=TRUE,
+latex.environment="center", caption.placement="top", table.placement="!h", sanitize.text.function=function(x){x})
+@
+
+<<Q2-3b,fig=TRUE,floating=FALSE,width=7,echo=FALSE>>=
+cormat <- cor(data[, -which(names(data) %in% c("wage"))])
+library(ggplot2)
+library(reshape2)
+ggplot(data = melt(cormat), aes(x=Var1, y=Var2, fill=value)) + geom_tile() + 
+  scale_fill_gradient(name = "Correlation",
+                      low = "#FFFFFF",
+                      high = "#012345")
+
+@
+
+\item
+Run the full regression model and capture your output in a table.
+
+<<Q2-4>>=
+regressors <- cbind(1, data[, -which(names(data) %in% c("wage"))])
+colnames(regressors)[1] <- "constant"
+X <- as.matrix(regressors)
+k <- ncol(X)
+n <- nrow(X)
+y <- data[, "wage"]
+
+bols <- solve(t(X) %*% X) %*% (t(X) %*% y)
+e <- y - X %*% bols
+SSR <- t(e) %*% e
+s2 <- (t(e) %*% e) / (n-k)
+Vb <- s2[1, 1] * solve(t(X) %*% X)
+se <- sqrt(diag(Vb))
+t <- bols / se
+@
+
+<<Q2-4b>>=
+df5 <- data.frame(col1=names(regressors),
+                 col2=bols,
+                 col3=se,
+                 col4=t
+                 )
+colnames(df5) <- c("variable", "estimate", "s.e.", "t")
+@
+
+<<chunk4b-table,results=tex,echo=FALSE>>=
+print(xtable(df5, caption="OLS Estimation - Wage data", digits=4), include.rownames=FALSE,
+latex.environment="center", caption.placement="top", table.placement="!h", sanitize.text.function=function(x){x})
+@
+
+
+We have calculated $\text{SSR} = $ \Sexpr{formatC(SSR, format="f", digits=3)} for this regression analysis. 
+\ksp
+\item
+Re-run the model without ``experience'' (and keep ``age'' out as well).  How do the results change?
+What do your findings suggest regarding the correlation of ``experience'' with the remaining regressors?
+Is the correlation strong enough to induce noticeable omitted variable bias?
+
+\ksp 
+
+Eliminating "experience" has not impacted most of the covariates considerably, with the exception of "unionmember" which has assumed a biased estimated value of higher magnitude. This suggest the existence of correlation between "unionmember" and the dropped variable "experience", which can align with an interpretation of the relation between the two variables that one may imagine. The correlation however is not dominating to an extent that causes unacceptable omitted variable bias.
+<<Q2-5>>=
+regressors <- cbind(1, data[, -which(names(data) %in% c("wage", "experience"))])
+colnames(regressors)[1] <- "constant"
+X <- as.matrix(regressors)
+k <- ncol(X)
+n <- nrow(X)
+y <- data[, "wage"]
+
+bols <- solve(t(X) %*% X) %*% (t(X) %*% y)
+e <- y - X %*% bols
+SSR <- t(e) %*% e
+s2 <- (t(e) %*% e) / (n-k)
+Vb <- s2[1, 1] * solve(t(X) %*% X)
+se <- sqrt(diag(Vb))
+t <- bols / se
+@
+
+<<Q2-5b>>=
+df6 <- data.frame(col1=names(regressors),
+                 col2=bols,
+                 col3=se,
+                 col4=t
+                 )
+colnames(df6) <- c("variable", "estimate", "s.e.", "t")
+@
+
+<<chunk5b-table,results=tex,echo=FALSE>>=
+print(xtable(df6, caption="OLS Estimation - Wage data", digits=4), include.rownames=FALSE,
+latex.environment="center", caption.placement="top", table.placement="!h", sanitize.text.function=function(x){x})
+@
+
+
+We have calculated $\text{SSR} = $ \Sexpr{formatC(SSR, format="f", digits=3)} for this regression analysis. 
+
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Question 3: Orthogonality and Projection}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Consider the ``residual maker matrix'' $\mlt{M}$ and the projection matrix $\mlt{P}$.
+Show formally that the following hold (please type all Math in LaTeX):\\
+
+\begin{enumerate}
+\item $\kM\kX=\mlt{0}$ (Provide intuition).
+\begin{align*}
+\kM\kX & = (I - \kX(\kX\kt\kX)^{-1}\kX\kt)\kX \\ & = \kX-\kX(\kX\kt\kX)^{-1}\kX\kt\kX = \kX-\kX=0
+\end{align*}
+
+The orthogonality (and hence lack of correlation) between the residual maker $\kM$ and regressors $\kX$ results in transformation of $\ky$ into "everything $\kX$ could not explain"! One way of interpreting this result is that if $\kX$ is regressed on $\kX$, a perfect fit will result and the residuals will be zero.
+
+\item $\kP\kX=\kX$   (Provide intuition).
+\begin{align*}
+\kP\kX & = \kX(\kX\kt\kX)^{-1}\kX\kt\kX \\ & = \kX \mlt{I} = \kX
+\end{align*}
+
+As opposed to the case above, the projection matrix $\kP$ transforms $\ky$ into "everything that $\kX$ is able to explain", that is the fitted values. In other words, $\kX$ is invariant under $\kP$.
+
+\item $ \ky=\kP\ky + \kM*\ky$ (Provide intuition)
+\begin{align*}
+\kP\ky + \kM*\ky & = \kX(\kX\kt\kX)^{-1}\kX\kt\ky + (\mlt{y}-\kX(\kX\kt\kX)^{-1}\kX\kt)\ky \\ & = \mlt{I}\ky=\ky
+\end{align*}
+Obviously, $\ky$ can be partitioned into two parts, one that can be explained via $\kX$ and one that can not be explained via the regressors $\kX$. Adding these two parts can "reconstruct" the original $\ky$. In other words, summing up $\kX$ transformed via these two complementary projections gives us the whole information that was to be captured from $\ky$, reversing the decomposition.
+
+\item $\kP\kM=\mlt{0}$
+  \begin{align*}
+  \kP\kM & = \kX(\kX\kt\kX)^{-1}X\kt(\mlt{I}-\kX(\kX\kt\kX)^{-1}\kX\kt) - \kX(\kX\kt\kX)^{-1}\kX\kt = 0
+  \end{align*}
+
+\item $\ke\kt\ke = \ke\kt\ky$
+  \begin{align*}
+  \ke\kt\ke & = (\kM\ky)\kt(\kM\ky) = \ky\kt\kM\ky = (\kP\ky+\kM\ky)\kt\kM\ky = \ky\kt\kP\kM\ky + \ky\kt\kM\kM\ky \\ & = (\kM\ky)\kt\ky = \ke\kt\ky
+  \end{align*}
+
+\item $\ky\kt\ky=\hat{\ky}\kt\hat{\ky}+ \ke\kt\ke$
+  \begin{align*}
+  \ky\kt\ky & =(\kP\ky + \kM\ky)\kt(\kP\ky + \kM\ky) \\ & = (\kP\ky)\kt(\kP\ky) + (\kP\ky)\kt(\kM\ky) + (\kM\ky)\kt(\kP\ky) + (\kM\ky)\kt(\kM\ky) \\ & = \hat{\ky}\kt\hat{\ky} + \hat{\ky}\kt\kP\kM\ky + \hat{\ky}\kt\kM\kP\ky + \ke\kt\ke \\ & = \hat{\ky}\kt\hat{\ky}+ \ke\kt\ke
+  \end{align*}
+\end{enumerate}
+
+
+
+
+
+
+<<R15>>=
+proc.time()-tic
+@
+
+\end{document}        
+

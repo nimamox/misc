@@ -1,0 +1,878 @@
+%Problem Set 5
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%I) DEFINE DOCUMENTCLASS AND LOAD ALL REQUIRED PACKAGES
+
+\documentclass[11pt,reqno]{amsart}   %keep it simple
+\usepackage{graphicx}      % for fancy graphics
+\usepackage{setspace}      % for basic formatting
+\usepackage{enumerate}     % for more flexibility with numbered lists
+\SweaveOpts{keep.source=TRUE}  %KEY - this preserves R formatting and comments
+\usepackage{float}
+\usepackage{tabularx}      % for nice tables
+\usepackage{ctable}        %for toprule, midrule etc. in tables
+\usepackage{multirow}      %for more flexibility with tables
+\usepackage{comment}       % for use of verbatim
+
+% You may need to load all or some of these packages -
+%follow the instructions on our course web site under "Help with LaTex"
+
+%II) PREAMBLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{plain} %puts page number center bottom
+\setlength{\topmargin}{0in}
+\setlength{\textheight}{8.5in}
+\setlength{\oddsidemargin}{.0in}
+\setlength{\evensidemargin}{.0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\footskip}{.5in}
+\setlength{\parindent}{0in} %suppress indentation
+%\onehalfspacing
+
+\newcommand{\mlt}[1]{\mathbf{#1}} %matrix bold for Latin symbols
+\newcommand{\mgr}[1]{\boldsymbol{#1}}%matrix bold for Greek symbols
+\newcommand{\kR}{\tt R\rm{} }%shortcut for "R" symbol
+\newcommand{\ksp}{\vspace{0.1in}}   % insert some space between chunks
+%feel free to add your own shortcuts  - here a mine:
+\newcommand{\kl}{\left(}
+\newcommand{\kr}{\right)}
+\newcommand{\kll}{\left\{}
+\newcommand{\krr}{\right\}}
+\newcommand{\kmu}{\mgr{\mu}}
+\newcommand{\kpsi}{\mgr{\psi}}
+\newcommand{\kphi}{\mgr{\phi}}
+\newcommand{\kgam}{\mgr{\gamma}}
+\newcommand{\ktheta}{\mgr{\theta}}
+\newcommand{\kbeta}{\mgr{\beta}}
+\newcommand{\kdelta}{\mgr{\delta}}
+\newcommand{\kt}{^{\prime}}
+\newcommand{\kdel}{\partial}
+\newcommand{\kdot}{\kl . \kr}
+\newcommand{\keps}{\epsilon}
+\newcommand{\kx}{\mlt{x}}
+\newcommand{\kX}{\mlt{X}}
+\newcommand{\kV}{\mlt{V}}
+\newcommand{\kM}{\mlt{M}}
+\newcommand{\kP}{\mlt{P}}
+\newcommand{\ky}{\mlt{y}}
+\newcommand{\kb}{\mlt{b}}
+\newcommand{\kc}{\mlt{c}}
+\newcommand{\ki}{\mlt{i}}
+\newcommand{\ke}{\mlt{e}}
+\newcommand{\klam}{\lambda}
+\newcommand{\kp}{\mlt{p}}
+\newcommand{\kprob}{\text{prob}}
+\newcommand{\kz}{\mlt{z}}
+\newcommand{\ksig}{\sigma^2}
+\newcommand{\kSig}{\mgr{\Sigma}}
+\newcommand{\klog}{\text{log}}
+\newcommand{\kols}{\kl \kX\kt\kX\kr^{-1}\kX\kt\ky}
+\newcommand{\kSSE}{\kl \ky-\kX\kb\kr\kt\kl\ky-\kX\kb\kr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+%III) TOP MATTER INFORMATION
+\title{Problem Set 5}
+\author{Azharul Islam} %ENTER YOUR NAME HERE
+\maketitle %this comes at the end of the top matter to set it.
+
+<<R1,echo=FALSE>>=
+options(prompt = "R> ", digits = 4)
+options(continue=" ") 
+setwd('C:/azhar/AAEC5126/problemsets/ps5/')
+options(width=60)
+set.seed(37)
+tic<-proc.time() #start stop watch
+library("xtable")
+library("msm") #to draw from truncated normal density - install first!
+library("Hmisc") #for quick data description, e.g. via "describe(..)" - install first!
+library("matlab")
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{General Instructions}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textsl{\footnotesize{Complete the following assignments in a sweave file that shows your code, output, and discussion.
+Hand in the compiled (pdf) version.
+You can use this file to get you started.
+You can work with others, but please hand in your own version.
+Please report any glitches as soon as you discover them - thanks!}}\\
+
+\textsl{\footnotesize{For the theory questions, you may want to work out your answer on paper first, then type up the key steps in \LaTeX. You can insert your \LaTeX code directly in in your sweave file, or - if you prefer, in a separate file or files in TeXnicCenter. For full credit, typed answers are required.}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Q1: Serial correlation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+(See scripts \texttt{mod4s3a} and  \texttt{mod4s3b} for guidance) 
+Consider Greene's gasoline consumption data (on the web under "gasoline" in tab-delimited .txt  format).  The variables are as follows:
+\vspace{0.1in}
+
+\begin{footnotesize}
+\begin{enumerate}
+\item  Year = Year, 1953-2004, 
+\item   GasExp = Total U.S. gasoline expenditure, in thousands
+\item   Pop = U.S. total population in thousands 
+\item   GasP = Price index for gasoline, 
+\item   Income = Per capita disposable income, 
+\item   Pnc = Price index for new cars, 
+\item   Puc = Price index for used cars, 
+\item  Ppt = Price index for public transportation, 
+\item   Pd = Aggregate price index for consumer durables, 
+\item  Pn = Aggregate price index for consumer nondurables, 
+\item  Ps = Aggregate price index for consumer services. 
+\end{enumerate}
+\end{footnotesize}
+\vspace{0.1in}
+
+The textbook analyzes a model using these data in the context of autocorrelation on pp. 649-650.
+
+Load the data into R, and specify Greene's model on p. 649 (6th edition), p. 927 (7th edition). Your dependent variable should be log[(GasExp)/(Pop*GasP)]. Your regressors should be:
+
+\vspace{0.1in}
+\begin{footnotesize}
+\begin{enumerate}
+\item   constant 
+\item   income = log(Per capita disposable income)
+\item  GasP = log(Price index for gasoline)
+\item   Pnc = log(Price index for new cars) 
+\item   Puc = log(Price index for used cars) 
+\item   time index
+\end{enumerate}
+\end{footnotesize}
+\vspace{0.1in}
+
+To create the last regressor (time index), you need to translate the year - variable into a running index from 1:52. Label this variable "$t_i$". 
+
+\begin{enumerate}
+\item 
+Run a simple OLS model.  (Note: Greene's results on p. 650 / 927 are a bit off, but close).  Comment on the significance levels of each regressor (ignore the constant term).  Are the signs of significant regressors as expected? Explain.\\
+\textbf{Answer:}\\
+<<R2,results=hide,echo=TRUE>>=
+load('c:/azhar/AAEC5126/R/data/gasoline.rda')
+#
+#assign variable names
+
+names(data)[1]<-"Year"
+names(data)[2]<-"GasExp"
+names(data)[3]<-"Pop"
+names(data)[4]<-"GasP"
+names(data)[5]<-"Income"
+names(data)[6]<-"Pnc"
+names(data)[7]<-"Puc"
+names(data)[8]<-"Ppt"
+names(data)[9]<-"Pd"
+names(data)[10]<-"Pn"
+names(data)[11]<-"Ps"
+#
+
+save(data, file = "gasoline.rda")
+attach(data)
+@
+
+\ksp
+<<R3,results=hide,echo=TRUE>>=
+# Define variables
+n<-nrow(data)
+y<-log((GasExp)/(Pop*GasP))
+ti<-Year-1952
+X<-cbind(rep(1,n),log(Income),log(GasP),log(Pnc),log(Puc),ti)
+k<-ncol(X)
+#
+bols<-solve((t(X)) %% X) %% (t(X) %*% y)# compute OLS estimator
+e<-y-X%*%bols # Get residuals.
+SSR<-(t(e)%*%e)#sum of squared residuals - should be minimized
+s2<-(t(e)%*%e)/(n-k) #get the regression error (estimated variance of "eps").
+s2ols<-s2 #for Hausman test below
+Vb<-s2[1,1]solve((t(X))%%X) # get the estimated VCOV matrix of bols
+se=sqrt(diag(Vb)) # get the standard erros for your coefficients;
+tval=bols/se # get your t-values.
+#
+tt<-data.frame(col1=c("constant","log(Income)","log(GasP)","log(Pnc)", "log(Puc)","ti"),
+               col2=bols,
+               col3=se,
+               col4=tval)
+colnames(tt)<-c("variable","estimate","s.e.","t")
+@
+\ksp
+<<R4,results=tex,echo=FALSE>>=
+ttx<- xtable(tt,caption="OLS output")
+digits(ttx)<-3   #decimals to be shown for each column
+print(ttx,include.rownames=FALSE,
+latex.environment="center", caption.placement="top",table.placement="H")
+@
+\ksp
+
+We find the variables Income and $t_{i}$ are significant at the 1\% level. The variables GasP, Pnc and Puc are not significant even at the 5\% level. The sign of variable Income is as expected. However, the negative relationship between gasoline expenditure and time cannot be expected before the estimaion.\\
+
+\item
+Generate OLS residuals (call them "$\ke$") and plot them against time (year).  The pattern should look a lot like the graph on p. 650 / 928.  Does it indicate autocorrelation - why or why not? If so, is it suggestive of positive or negative autocorrelation - explain. \\ 
+\textbf{Answer:}\\
+\ksp
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Residual Plot}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[!ht]
+\centering
+<<R5,fig=TRUE,include=TRUE,echo=FALSE,width=8,height=6>>=
+ts<-seq(1953,2004.1)
+plot(e~ts,
+type = "l",
+xlab = "year",
+ylab = "e",
+xaxt="n",
+)
+#the last part leaves the x-axis unlabeled, so we can customize it later
+axis(1,at=seq(1953,2003,5),
+labels=c("1953","1958","1963","1968","1973","1978","1983","1988","1993","1998","2003"))
+abline(h=0,col="red")   #mark horizontal zero-line
+@
+\caption{OLS residual plots}
+\label{fig:scatter1}
+\end{figure}
+\ksp
+
+\item
+Perform a Breusch-Godfrey multiplier test for AR(1).  State the null and alternative hypotheses, the computed p-value and your decision regarding the null (at 5\% level of significance).\\
+\textbf{Answer:}\\
+<<R6,results=hide,echo=TRUE>>=
+elag<-e[1:(n-1)]
+#
+e0lag<-c(0,elag) # fill first position with 0 */
+Xo=cbind(X, e0lag) #augment X with a column of lagged residuals
+#
+LM<-n*((t(e) %% Xo %% solve(t(Xo) %% Xo) %% t(Xo) %% e)/(t(e) %% e))
+pval=1-pchisq(LM,1)
+@
+
+
+The null hypothesis is $H_{0}$: $\rho=0$, (no autocorrelation). \\
+The alternative hypothesis is $H_{1}$: $\rho \neq 0$, (there is autocorrelation). \\
+
+\ksp
+The BG-statistic for this test is \Sexpr{round(LM,digits=3)}.
+The degrees of freedom for the test are \Sexpr{1}.
+The corresponding p-value is \Sexpr{round(pval,digits=3)}. \\ 
+
+
+With the p-value being 0, we reject the null hypothesis at the 1\% significance and conclude that there is existence of autocorrelation.   
+
+
+\ksp
+
+
+\item
+Compute the Durbin-Watson statistic.  State the null and alternative hypotheses, the appropriate degrees of freedom, the appropriate critical values from the DW Table at $\alpha=0.05$ (textbook or google on the web), and your decision regarding the null. (the DW value should be the same as the one mentioned in Greene, up two the first 2 decimals).\\
+\textbf{Answer:}\\
+<<R10,results=hide,echo=TRUE>>=
+ecurr<-e[2:n]
+elag<-e[1:(n-1)]
+d<-(t(ecurr-elag) %% (ecurr-elag))/(t(e) %% e)
+@
+\ksp
+The DW-statistic for this test is \Sexpr{round(d,digits=3)}.
+The sample size is \Sexpr{n}.
+The column space of X is \Sexpr{k}.
+
+\item
+Estimate robust OLS with  Newey-West corrected standard errors. (In $\kR$, you can use 
+\begin{verbatim} L<-ceiling(n^(1/4)) \end{verbatim} for the lag indicator, where n is the sample size).\\
+\textbf{Answer:}\\
+\ksp
+<<R11,results=hide,echo=TRUE>>=
+#L<-ceiling(n^(1/4)); #rounds upwards to nearest integer; 
+# this would be the generic choice
+L<-5 #this produces Greene's results
+H<-matrix(0,k,k)
+
+for (j in 1:L) {
+    t<-j+1
+    G<-matrix(0,k,k)
+    for (i in t:n)  {
+        m<-(1-(j/(L+1)))e[i]*e[i-j]
+        (t(X[i,,drop=FALSE])%% X[i-j,]+t(X[i-j,,drop=FALSE]) %% X[i,])
+        #drop=FALSE forces the transpose to be a column vector
+        G<-G+m        
+    }
+    H<-H+G                                             
+}
+e<-as.vector(e)
+S1<-(t(X) %% diag(e^2) %% X)+H
+Vb<-solve((t(X))%%X) %% S1 %% solve((t(X))%%X)
+se=sqrt(diag(Vb)) 
+tval=bols/se 
+tt<-data.frame(col1=c("constant","log(income)","log(gasp)","log(pnc)","log(puc)","ti"),
+               col2=bols,
+               col3=se,
+               col4=tval)
+colnames(tt)<-c("variable","estimate","s.e.","t")
+@
+\ksp
+<<R12,results=tex,echo=FALSE>>=
+ttx<- xtable(tt,caption="Robust OLS output")
+digits(ttx)<-3   #decimals to be shown for each column
+print(ttx,include.rownames=FALSE,
+latex.environment="center", caption.placement="top",table.placement="H")
+@
+
+
+\item
+Compute the Prais-Winsten FGLS estimator.  (The results will be a bit different than those given in Greene - he uses a slightly different estimation approach).\\
+\textbf{Answer:}\\
+<<R13,results=hide,echo=TRUE>>=
+# Step 1: Get a consistent estimate of rho:
+rho<-solve(t(elag) %% elag) %% t(elag) %*% ecurr #OLS solution for our 
+# "e vs. e-lag 1 regression model above
+#
+#Step 2: compose the correlation matrix R
+R<-matrix(0,n,n)
+up<-seq(1,(n-1),1)
+down<-seq((n-1),1,-1)
+int<- c(rho^(down), 1, rho^(up)) #1 by 2*(n-1)+1
+for (i in 1:n){
+R[i,]<-int[(n-(i-1)):(length(int)-(i-1))]
+}
+#
+#Step 3: compute FGLS estimator
+bgls<-solve((t(X)) %% solve(R) %% X) %% (t(X) %% solve(R) %*% y)
+#
+#Step 4: compute a consistent estimate of sig(eps)
+e<-y-X%*%bgls
+sige<-(1/n)t(e) %% solve(R) %*% (e)
+#
+#Step 5: Compute consistent variance-covariance matrix for b_fgls
+Om<-sige[1,1]*R
+Vb<-solve((t(X))%% solve(Om) %% X) 
+se=sqrt(diag(Vb)) 
+tval=bgls/se 
+#
+ttgls<-data.frame(col1=c("constant","log(income)","log(gasp)","log(pnc)","log(puc)","ti"),
+               col2=bgls,
+               col3=se,
+               col4=tval)
+colnames(ttgls)<-c("variable","estimate","s.e.","t")
+@
+<<R14,results=tex,echo=FALSE>>=
+ttglsx<- xtable(ttgls,caption="FGLS output")
+digits(ttglsx)<-3   #decimals to be shown for each column
+print(ttglsx,include.rownames=FALSE,
+latex.environment="center", caption.placement="top",table.placement="H")
+@
+
+\item
+Compare your original OLS estimates, the robust estimates, and the FGLS results and elaborate: \\
+    \begin{enumerate}
+      \item 	Compare the s.e.'s and t-values between OLS and robust OLS. Are there any noteworthy changes in significance levels?\\ 
+\textbf{Answer:}\\
+
+      \item	Compare the s.e.'s and t-values between the robust OLS and the FGLS model. Are there any noteworthy changes in significance levels?\\
+\textbf{Answer:}\\
+
+
+      \item	Assume the main focus of your research is on the effect of "gas prices" on "gas consumption".  Overall, which model would you choose?\\
+\textbf{Answer:}\\
+
+
+    \end{enumerate}
+\end{enumerate}
+
+
+\clearpage
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Q2: Estimation of treatment effects via regression}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+This question uses home sales data from Connecticut (CT) for 1991-1999. All properties are single-family residential homes located within 0.25 miles of the coastline. The total sample size is 6,327. Of these, 2,439 are located in a spezial flood hazard area (SFHA), which means they have been declared to be at higher risk of flooding than the remaining 3,888 properties outside the SFHA. However, these homes are alse enjoying overall nicer amenities, such as proximity to beach, water, and views. Thus, it is ex-ante not clear which effect will dominate - the flood risk effect or the amenity effect.\\
+
+The outcome variable of interest is sale price, in \$1,000. The main objective of this exercise is to estimate the combined SFHA \& amenity effect on home prices, and check which effect is stronger.\\
+
+The data are sorted by treatment (SFHA=1 properties first, followed by SFHA=0 properties), and by sales date within treatment. The variables are as follows:\\
+
+\begin{enumerate}
+\item DQid            original property ID
+\item saleyr          year of sale
+\item salemonth       month of sale
+\item saleday         calendar day of sale
+\item saledateE       sale date in elapsed days since 1/1/1960
+\item price000        sale price in 1000's of 2014 dollars
+\item SFHA            1= located in SFHA zone
+\item age             age of structure, years
+\item sqft00          square footage, in 100's
+\item lot000          lot size, in 1000 sqft
+\item bedrooms        total number of bedrooms
+\item bathrooms       total number of baths
+\item elev10          elevation in meters at 10 meter resolution
+\item ISMi            distance to nearest Interstate, miles
+\item PAMi            distance to nearest principal artery, miles
+\item beaMi           distance to nearest beach, miles
+\item hidMi           distance to nearest high-density development, miles
+\item coaestMi        miles to nearest coast or estuary                
+\item reslkMi         miles to nearest lake, pond, or reservoir
+\item ag10            acreage of ag land w/in 1000m, most current
+\item ind10           acreage of ind. land w/in 1000m, most current
+\item op10            acreage of open land w/in 1000m, most current
+\end{enumerate}
+
+
+The following loads in the data (including all variable names), and saves it immediately in R's internal (``rda'') format:
+
+\ksp
+<<R15,results=hide,echo=TRUE>>=
+data<- read.table('c:/azhar/AAEC5126/R/data/CTfloodzones.txt', 
+sep="\t", header=TRUE)
+save(data, file = "c:/azhar/AAEC5126/R/data/CTfloodzones.rda")
+@
+\ksp
+
+
+\begin{enumerate}
+\item 
+Let the dependent variable be ``price000,'' the treatment variable ``SFHA,'', and let the explanatory data $\kX$ include all variables listed above from ``age'' to ``op10'' (15 variables), in addition to a constant term where needed.\\
+
+Check for overlap and show results in a table - which explanatory variables raise red flags by exceeding the recommended overlap core of 0.25 (in absolute terms)? Explain in words which group, treated or controls, has relatively larger or smaller values for these red flag variables.\\
+\textbf{Answer:}\\
+\ksp
+<<R16,results=hide,echo=TRUE>>=
+attach(data)
+n<-nrow(data)
+n1<-2439
+n0<-n-n1 #260 cases
+y<-price000
+X<-cbind(age,sqft00,lot000,bedrooms,bathrooms,elev10,ISMi,PAMi,beaMi,hidMi,coaestMi,reslkMi,ag10,ind10,op10)
+# 
+y1<-y[1:n1]
+y0<-y[(n1+1):n]
+my1<-mean(y1)
+my0<-mean(y0)
+sy1<-sd(y1)
+sy0<-sd(y0)
+ndiffy<-(my1-my0)/sqrt(sy1^2 + sy0^2)
+#
+X1<-X[1:n1,]
+X0<-X[(n1+1):n,]
+mX1<-colMeans(X1)
+mX0<-colMeans(X0)
+sX1<-apply(X1,2,sd)
+sX0<-apply(X0,2,sd)
+ndiffX<-as.vector((mX1-mX0)/sqrt(sX1^2 + sX0^2))
+#
+tt<-data.frame(col1=c("price000","age","sqft00","lot000","bedrooms","bathrooms","elev10","ISMi","PAMi","beaMi","hidMi","coaestMi","reslkMi","ag10","ind10","op10"),
+col2=c(ndiffy,ndiffX))
+colnames(tt)<-c("variable","norm.diff")
+@
+\ksp
+
+\ksp
+<<R17,results=tex,echo=FALSE>>=
+print(xtable(tt,caption="normalized differences"),include.rownames=FALSE,
+latex.environment="center", caption.placement="top",table.placement="H")
+#get rid of row counters, and center over decimal)
+@
+\ksp
+All overlap scores are well below 0.25, except elev10 and coaestMi, so we cannot expect for ATE and ATT to be well-identified, using these explanatory variables.
+
+\item Estimate the ATT via difference in means, pooled regression adjustment, and regression adjustment using separate equations, deriving standard errors and t-values as in script \texttt{mod5s1}. Show all results in a combined table, as in the lecture script.\\
+\textbf{Answer:}\\
+Estimation via difference in means
+\ksp
+<<R18,results=tex,echo=TRUE>>=
+m1<-(my1-my0)
+sem1<-sqrt(sy1^2/(n1)+sy0^2/(n0))
+tm1<-m1/sem1
+#
+m1ATT<-m1
+sem1ATT<-sem1
+tm1ATT<-tm1
+@
+\ksp
+Estimation via pooled regression adjustment\\
+\ksp
+<<R19,results=hide,echo=TRUE>>=
+X<-cbind(rep(1,n),SFHA,age,sqft00,lot000,bedrooms,bathrooms,elev10,ISMi,PAMi,beaMi,hidMi,coaestMi,reslkMi,ag10,ind10,op10)
+bols<-solve((t(X)) %% X) %% (t(X) %*% y)
+e<-as.vector(y-X%*%bols) 
+S<-diag(e^2)
+Vb<-solve((t(X))%%X) %% t(X) %% S %% X %% solve((t(X))%%X)
+se=sqrt(diag(Vb)) 
+tval=bols/se 
+#
+m2<-as.vector(bols[2])
+sem2<-as.vector(se[2])
+tm2<-as.vector(tval[2])
+#
+m2ATT<-m2
+sem2ATT<-sem2
+tm2ATT<-tm2
+@
+\ksp
+Estimation via regression adjustment using seperate equations\\
+\ksp
+<<R20,results=hide,echo=TRUE>>=
+X<-cbind(rep(1,n),age,sqft00,lot000,bedrooms,bathrooms,elev10,ISMi,PAMi,beaMi,hidMi,coaestMi,reslkMi,ag10,ind10,op10) 
+#eliminate SFHA as a explanatory variable
+y1<-as.matrix(y[1:n1])
+y0<-as.matrix(y[(n1+1):n])
+X1<-X[1:n1,]
+X0<-X[(n1+1):n,]
+#
+b1<-solve((t(X1)) %% X1) %% (t(X1) %*% y1)
+b0<-solve((t(X0)) %% X0) %% (t(X0) %*% y0)
+#
+#ATE
+y1p<-X%*%b1 #create predictions for treated outcome for ALL observations
+y0p<-X%*%b0 #create predictions for UNtreated outcome for ALL observations
+m3<-mean(y1p-y0p)
+#ATT
+m3ATT<-mean(y1p[1:n1]-y0p[1:n1])
+#
+#
+#run bootstrap to get s.e.'s (see Wooldridge, p. 918)
+###############################
+R<-1000 #number of bootstrap replications
+out<-rep(0,R) #will collect ATE result for each replication
+outATT<-rep(0,R) #will collect ATT result for each replication
+com1<-cbind(y1,X1) #glue y1 and X1 together
+com0<-cbind(y0,X0)
+
+for (i in 1:R) {
+  int1<-com1[sample(nrow(com1),n1,replace=TRUE), ]  
+  #sample n1 id's with replacement (this allows for multiple entries)
+  y1r<-int1[,1]
+  X1r<-int1[,2:dim(com1)[2]]
+  b1<-solve((t(X1r)) %% X1r) %% (t(X1r) %*% y1r)
+  #
+  int0<-com0[sample(nrow(com0),n0,replace=TRUE), ]  
+  #sample n1 id's with replacement (this allows for multiple entries)
+  y0r<-int0[,1]
+  X0r<-int0[,2:dim(com0)[2]]
+  b0<-solve((t(X0r)) %% X0r) %% (t(X0r) %*% y0r)
+  #
+  Xr<-rbind(X1r,X0r)
+  y1rp<-Xr%*%b1
+  y0rp<-Xr%*%b0
+  #ATE
+  out[i]<-mean(y1rp-y0rp)
+  #ATT
+  outATT[i]<-mean(y1rp[1:n1]-y0rp[1:n1])
+}
+sem3<-sd(out)
+tm3<-m3/sem3
+#
+sem3ATT<-sd(outATT)
+tm3ATT<-m3ATT/sem3ATT
+@
+\ksp
+
+
+
+<<R21,results=tex,echo=FALSE>>=
+#Combine all output in a table
+#ATE
+ttATE<-data.frame(col1=c("difference in means","pooled regression","separate regressions"),
+col2=c(m1,m2,m3),
+col3=c(sem1,sem2,sem3),
+col4=c(tm1,tm2,tm3))
+colnames(ttATE)<-c("estimator","estimate","s.e.","t-value")
+#
+#
+#ATT
+ttATT<-data.frame(col1=c("difference in means","pooled regression","separate regressions"),
+col2=c(m1ATT,m2ATT,m3ATT),
+col3=c(sem1ATT,sem2ATT,sem3ATT),
+col4=c(tm1ATT,tm2ATT,tm3ATT))
+colnames(ttATT)<-c("estimator","estimate","s.e.","t-value")
+@
+
+<<R22,results=tex,echo=FALSE>>=
+ttATEx<- xtable(ttATE,caption="Combined estimation results for ATE")
+digits(ttATEx)<-3
+print(ttATEx,include.rownames=FALSE,
+latex.environment="center", caption.placement="top",table.placement="H")
+#
+ttATTx<- xtable(ttATT,caption="Combined estimation results for ATT")
+digits(ttATTx)<-3
+print(ttATTx,include.rownames=FALSE,
+latex.environment="center", caption.placement="top",table.placement="H")
+@
+
+
+\item Comment on your results - are they similar or not? Which effect appears to be stronger - the risk effect or the amenity effect? Which estimate would you pick if you had to choose among those three? Provide some rationale.\\
+\textbf{Answer:}\\
+
+
+\end{enumerate}
+
+
+\clearpage
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Q3: Estimation of treatment effects via matching}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Use the same data as for Q2, and lecture script \texttt{mod5s3} for guidance. Use 1-neighbor matching ($M=1$) without forcing exact matches ($Me=0$), and use all variables in $\kX$ described above for both matching and the regression adjustment.\\
+
+
+\begin{enumerate}
+\item 
+Find matches and check for overlap (=``balance'') - show the overlap results in a table. How do these scores compare to those from the unmatched data in Q2? Are there any noteworthy improvements (lower overlap score, in absolute terms) for some variables that would indicate that the data are now better balanced?\\
+\textbf{Answer:}\\
+\ksp
+<<R23,results=hide,echo=TRUE>>=
+attach(data)
+y <- as.matrix(price000)
+n <- nrow(y)
+w <- as.matrix(SFHA)
+#
+f0 <- find(w == 0)
+f1 <- find(w == 1)
+#
+y0 <- as.matrix(y[f0])
+y1 <- as.matrix(y[f1])
+n1 <- nrow(y1)
+n0 <- nrow(y0)
+#
+X <-
+  as.matrix(
+    cbind(
+      age,
+      sqft00,
+      lot000,
+      bedrooms,
+      bathrooms,
+      elev10,
+      ISMi,
+      PAMi,
+      beaMi,
+      hidMi,
+      coaestMi,
+      reslkMi,
+      ag10,
+      ind10,
+      op10
+    )
+  )
+X1 <- as.matrix(X[f1, ])
+X0 <- as.matrix(X[f0, ])
+#we want to enforce exact matching on education, so place it last
+k <- ncol(X)
+#
+M <- 1 #min. number of matches per treated obs.
+Me <- 0 #number of variables that must match exactly
+@
+\ksp
+<<R24,results=hide,echo=TRUE>>=
+y0hat = rep(n1, 1)  # will collect counterfactual estimates
+IMatch <-
+  vector('list', n1) #collects matching info for each treatment obs
+JMivec = rep(0, n1) #collects number of matches used for each treatment obs
+KMlvec = rep(0, n)
+#collects weighted counts for how often each control is used as match
+# will be zero for treated obs's
+#
+Vi <- 1 / as.matrix(diag(var(X))) #ector of inverted variances
+pen <- c(rep(1, (k - Me)), rep(1000, Me))# penalties for variance terms
+Vi <- Vi * pen  #penalize for exact matches
+#
+for (i in 1:n1) {
+  xi <- as.matrix(X1[i, ])
+  int1 <- (repmat(xi, n0, 1) - X0) ^ 2 #squared differences, k by n0
+  int2 <- repmat(Vi, n0, 1)
+  int <- as.matrix(sqrt(rowSums(int1 * int2))) #n0 by 1 matching scores
+  #
+  Imat <- cbind(f0, y0, int)
+  Imat <-
+    Imat[order(int), ] #sort in order of lowest to highest matching score
+  int <- Imat[, 3]
+  #find >= M observations with lowest distance, allowing for ties
+  g <- 1 #counter for unique values - we need exactly M
+  j <- 1 #counts over observations
+  #
+  while (g < (M + 1)) {
+    d <- int[j] - int[j + 1]
+    if (d != 0)
+      g <- g + 1
+    j = j + 1
+  }
+  #
+  y0hat[i] = mean(Imat[1:(j - 1), 2])
+  IMatch[[i]] = Imat[1:(j - 1),]
+  JMivec[i] <- j - 1
+  #
+  f <- Imat[1:(j - 1), 1] #set of indices for controls
+  KMlvec[f] <- KMlvec[f] + (1 / (j - 1))
+}
+@
+\ksp
+<<R25,results=tex,echo=FALSE>>=
+print(
+  xtable(tt, caption = "normalized differences treated vs. chosen controls"),
+  include.rownames = FALSE,
+  latex.environment = "center",
+  caption.placement = "top",
+  table.placement = "h!"
+) #careful, TeX doesn't understand H
+#get rid of row counters, and center over decimal)
+@
+\ksp
+All overlap scores are (well) below 0.25, so we can expect for ATE and ATT to be well-identified, using these explanatory variables and the matched control observations. Note: We could repeat the matching procedure chosing different distance metrics and / or different number of matches to further improve overlap. This is an active area of research in the matching literature.
+
+
+\item Compute the uncorrected and corrected ATTs, along with consistent standard errors and t-values following script \texttt{mod5s3}. Report this output in a table.\\
+\textbf{Answer:}\\
+Compute uncorrected estimator \& percentage of exact matches\\
+<<R26,results=hide,echo=TRUE>>=
+ATT <- mean(y1 - y0hat) #correct, same as Matlab
+
+# of exact matches on education
+################################
+exact <- rep(0, n1) #collects counts of exact matches for education
+#
+for (i in 1:n1) {
+  #fi<-IMatch[[i]][,1]
+  # OK, here is the problem. With M=1, IMatch will usually only have one row,
+  #but R doesn't understand that this is a matrix construct with one row,
+  # and thus creates an error message when I call the first column of that matrix.
+  fiprep <- matrix(IMatch[[i]], ncol = 3) # now it gets it,
+  # a row with 3 columns (but multiple rows still OK)
+  fi <- fiprep[, 1]
+  #id's of matched observations
+  
+  int2 <- X1[i, k] - X[fi, k] #difference in educ
+  #
+  fAll <- find(int2 == 0)
+  exact[i] = length(fAll)
+}
+
+pAll <- sum(exact) / sum(JMivec)
+@
+Compute consistent standard errors for uncorrected estimator\\
+<<R27,results=hide,echo=TRUE>>=
+
+
+# compute sighat
+################################
+sumterm = rep(0, n1)
+
+for (i in 1:n1) {
+  #outi=IMatch[[i]] #same problem as above
+  outi <- matrix(IMatch[[i]], ncol = 3)
+  JMi <- nrow(outi) #number of obs's used for matching
+  y0l <- outi[, 2]
+  int <-
+    sum((y1[i] - y0l - ATT) ^ 2) #y0l is JMi by 1, the other terms are scalars
+  sumterm[i] <- (1 / JMi) * int
+}
+
+# compute variance
+###############################
+sighat <- (1 / (2 * n1)) * sum(sumterm)
+VarATT <- (sighat / n1 ^ 2) * (n1 + sum(KMlvec ^ 2))
+seATT <- sqrt(VarATT) #correct, same as Matlab
+tATT <- ATT / seATT
+@
+
+\item How does the corrected ATT compare to its uncorrected counterpart? Which one would you choose and why?\\
+\textbf{Answer:}\\
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Compute corrected estimator}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<<R28,results=hide,echo=TRUE>>=
+#
+# run auxiliary regression
+############################
+Xfull <- cbind(rep(1, n), X[, 1:(k - Me)])
+#add constant, drop variables that must match exactly
+X1full = cbind(rep(1, n1), X1[, 1:(k - Me)])
+X0full = cbind(rep(1, n0), X0[, 1:(k - Me)])
+#
+kfull <- ncol(Xfull)
+#
+fK <- find(KMlvec != 0) #use only matched obs
+Kaux = KMlvec[fK]
+yaux = sqrt(Kaux) * y[fK]
+#weighting by (weighted) number of time an obs. was matched
+Xaux <- repmat(sqrt(Kaux), 1, kfull) * Xfull[fK, ]
+#
+baux <- solve((t(Xaux)) %% Xaux) %% (t(Xaux) %*% yaux)
+y1pred <- X1full %*% baux
+#
+# Compute estimator
+#########################
+y0hat <- rep(0, n1) # will collect counterfactual estimates
+
+for (i in 1:n1) {
+  fiprep <- matrix(IMatch[[i]], ncol = 3) #same correction as above
+  fi <- fiprep[, 1]  # id's of matched observations
+  yl <- fiprep[, 2]  # outcomes for matched controls
+  y0lpred <- Xfull[fi, ] %*% baux #predictions for matched controls
+  y0hat[i] <- mean(yl - y0lpred + y1pred[i])
+  #last element is a scalar, but R gets it
+}
+#
+ATTc <- mean(y1 - y0hat) #same as Matlab
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Compute consistent standard errors for corrected estimator}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+<<R29,results=hide,echo=TRUE>>=
+
+
+# compute sighat
+################################
+sumterm = rep(0, n1)
+
+for (i in 1:n1) {
+  outi <- matrix(IMatch[[i]], ncol = 3)
+  JMi <- nrow(outi) #number of obs's used for matching
+  y0l <- outi[, 2]
+  int <-
+    sum((y1[i] - y0l - ATTc) ^ 2) #y0l is JMi by 1, the other terms are scalars
+  sumterm[i] <- (1 / JMi) * int
+}
+
+# compute variance
+###############################
+sighat <- (1 / (2 * n1)) * sum(sumterm)
+VarATTc <- (sighat / n1 ^ 2) * (n1 + sum(KMlvec ^ 2))
+seATTc <- sqrt(VarATTc)
+tATTc <- ATTc / seATTc
+@
+
+
+<<R30,results=tex,echo=FALSE>>=
+#Combine all output in a table
+#ATE
+tt<-data.frame(col1=c("min. # matches","# vars, exact match","% exact matches","ATT, uncorrected","ATT, corrected"),
+col2=c(M, Me, round(pAll,digits=3), round(ATT,digits=3), round(ATTc,digits=3)),
+col3=c("-","-","-",round(seATT,digits=3),round(seATTc,digits=3)),
+col4=c("-","-","-",round(tATT,digits=3),round(tATTc,digits=3)))              
+colnames(tt)<-c("estimator","estimate","s.e.","t-value")
+#
+@
+
+<<R31,results=tex,echo=FALSE>>=
+ttx<- xtable(tt,caption="Combined estimation results for ATT")
+digits(ttx)<-3
+print(ttx,include.rownames=FALSE,
+latex.environment="center", caption.placement="top",table.placement="!h")
+@
+
+
+\item Across all ATT estimates from Q2 and Q3, which one would you choose and why?\\
+\textbf{Answer:}\\
+
+\item In sum, what can you conclude regarding the challenge of estimating flood risk effects on home prices in presence of (unobserved) coastal amenities? Which effect is likely going to dominate? What additional data might help to directly control for amenities in the econometric model?
+\textbf{Answer:}\\
+
+\end{enumerate}
+
+
+
+
+\end{document}

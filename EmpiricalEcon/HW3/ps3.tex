@@ -1,0 +1,617 @@
+%Problem Set 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Sweave('C:/Klaus/AAEC5126/problemsets/ps3',syntax=SweaveSyntaxNoweb)
+
+%I) DEFINE DOCUMENTCLASS AND LOAD ALL REQUIRED PACKAGES
+\documentclass[11pt,reqno]{amsart}\usepackage[]{graphicx}\usepackage[]{color}
+% maxwidth is the original width if it is less than linewidth
+% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.196, 0.196, 0.196}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.063,0.58,0.627}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.063,0.58,0.627}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.588,0.588,0.588}{#1}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0.196,0.196,0.196}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.196,0.196,0.196}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.231,0.416,0.784}{#1}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.627,0,0.314}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0,0.631,0.314}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.78,0.227,0.412}{#1}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}   %keep it simple
+\usepackage{hyperref}
+\usepackage{graphicx}      % for fancy graphics
+\usepackage{setspace}      % for basic formatting
+\usepackage{enumerate}     % for more flexibility with numbered lists
+%\SweaveOpts{keep.source=TRUE}  %KEY - this preserves R formatting and comments
+
+% You may need to load all or some of these packages -
+%follow the instructions on our course web site under "Help with LaTex"
+
+%II) PREAMBLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{plain} %puts page number center bottom
+\setlength{\topmargin}{0in}
+\setlength{\textheight}{8.5in}
+\setlength{\oddsidemargin}{.0in}
+\setlength{\evensidemargin}{.0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\footskip}{.5in}
+\setlength{\parindent}{0in} %suppress indentation
+%\onehalfspacing
+
+\newcommand{\mlt}[1]{\mathbf{#1}} %matrix bold for Latin symbols
+\newcommand{\mgr}[1]{\boldsymbol{#1}}%matrix bold for Greek symbols
+\newcommand{\kR}{\tt R\rm{} }%shortcut for "R" symbol
+\newcommand{\ksp}{\vspace{0.1in}}   % insert some space between chunks
+%feel free to add your own shortcuts  - here a mine:
+\newcommand{\kl}{\left(}
+\newcommand{\kr}{\right)}
+\newcommand{\kll}{\left\{}
+\newcommand{\krr}{\right\}}
+\newcommand{\kmu}{\mgr{\mu}}
+\newcommand{\kpsi}{\mgr{\psi}}
+\newcommand{\kphi}{\mgr{\phi}}
+\newcommand{\kgam}{\mgr{\gamma}}
+\newcommand{\ktheta}{\mgr{\theta}}
+\newcommand{\kbeta}{\mgr{\beta}}
+\newcommand{\kdelta}{\mgr{\delta}}
+\newcommand{\kt}{^{\prime}}
+\newcommand{\kdel}{\partial}
+\newcommand{\kdot}{\kl . \kr}
+\newcommand{\keps}{\epsilon}
+\newcommand{\kx}{\mlt{x}}
+\newcommand{\kX}{\mlt{X}}
+\newcommand{\kV}{\mlt{V}}
+\newcommand{\kM}{\mlt{M}}
+\newcommand{\kP}{\mlt{P}}
+\newcommand{\ky}{\mlt{y}}
+\newcommand{\kb}{\mlt{b}}
+\newcommand{\kc}{\mlt{c}}
+\newcommand{\ki}{\mlt{i}}
+\newcommand{\ke}{\mlt{e}}
+\newcommand{\klam}{\lambda}
+\newcommand{\kp}{\mlt{p}}
+\newcommand{\kprob}{\text{prob}}
+\newcommand{\kz}{\mlt{z}}
+\newcommand{\ksig}{\sigma^2}
+\newcommand{\kSig}{\mgr{\Sigma}}
+\newcommand{\klog}{\text{log}}
+\newcommand{\kols}{\kl \kX\kt\kX\kr^{-1}\kX\kt\ky}
+\newcommand{\kSSE}{\kl \ky-\kX\kb\kr\kt\kl\ky-\kX\kb\kr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+%III) TOP MATTER INFORMATION
+\title{Problem Set 3}
+\author{Nima Mohammadi \\ \href{mailto:nimamo@vt.edu}{\textbf{nimamo@vt.edu}}} %ENTER YOUR NAME HERE
+\maketitle %this comes at the end of the top matter to set it.
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{MLE Bernoulli}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Consider the Bernoulli model (also called "Binary response model") where a given random draw $y_i = 1$ with probability $\pi$, 
+and $y_i = 0$ with probability $1-\pi$.  
+Thus, the density for this model can be compactly written as $f\kl y_i \kr =\pi^{y_i}\kl 1-\pi \kr^{1-y_i}$.  
+The moments for this density are given as $E\kl y_i \kr = \pi, V\kl y_i \kr =\pi\kl 1-\pi \kr$. 
+Assume you draw a sample of $n$ observations from this distribution.
+\ksp
+\begin{enumerate}
+\item  Derive $lnL\kl \pi \kr, g\kl \pi \kr, H\kl \pi \kr, I\kl \pi \kr$.
+
+$f\kl y_i \kr =\pi^{y_i}\kl 1-\pi \kr^{1-y_i}$\\
+$\Rightarrow l\kl \pi \kr =\pi^{y_i}\kl 1-\pi \kr^{1-y_i}$\\
+$\Rightarrow \ln l\kl \pi \kr = y_i \ln \kl \pi \kr + \kl 1-y_i\kr \ln\kl 1-\pi \kr$\\
+
+Then, summing over all observations we have:
+\ksp
+
+\begin{equation*}
+\begin{split}
+\ln \mathrm{L}(\pi)&=\ln (\pi) \sum_{i=1}^{n} y_{i}+\ln (1-\pi) \sum_{i=1}^{n}\left(1-y_{i}\right)\\
+g(\pi)&=\frac{\partial \ln L(\pi)}{\partial \pi}=\frac{1}{\pi} \sum_{i=1}^{n} y_{i}-\frac{1}{1-\pi} \sum_{i=1}^{n}\left(1-y_{i}\right)\\
+H(\pi)&=\frac{\partial^{2} \ln L(\pi)}{\partial \pi^{2}}=-\frac{1}{\pi^{2}} \sum_{i=1}^{n} y_{i}-\frac{1}{(1-\pi)^{2}} \sum_{i=1}^{n}\left(1-y_{i}\right)\\
+I(\pi)&=-\mathrm{E}_{y}(H(\pi))=-\mathrm{E}_{y}\left(-\frac{1}{\pi^{2}} \sum_{i=1}^{n} y_{i}-\frac{1}{(1-\pi)^{2}} \sum_{i=1}^{n}\left(1-y_{i}\right)\right)\\&=\frac{n \pi}{\pi^{2}}+\frac{n(1-\pi)}{(1-\pi)^{2}}=\frac{n}{\pi(1-\pi)}
+\end{split}
+\end{equation*}
+
+
+
+\item	Derive the ML estimator (call it $p$), and its asymptotic variance.
+
+\begin{equation*}
+\begin{split}
+& g(\pi)=\frac{1}{\pi} \sum_{i=1}^{n} y_{i}-\frac{1}{1-\pi} \sum_{i=1}^{n}\left(1-y_{i}\right)=0\\
+& \Rightarrow \frac{1}{\pi} \sum_{i=1}^{n} y_{i}=\frac{1}{1-\pi} \sum_{i=1}^{n}\left(1-y_{i}\right) \Rightarrow \frac{1}{\pi} \sum_{i=1}^{n} y_{i}=\frac{n}{1-\pi}-\frac{1}{1-\pi} \sum_{i=1}^{n} y_{i} \\
+& \Rightarrow \frac{1}{\pi} \sum_{i=1}^{n} y_{i}+\frac{1}{1-\pi} \sum_{i=1}^{n} y_{i}=\frac{n}{1-\pi} \Rightarrow \left(\frac{1}{\pi}+\frac{1}{1-\pi}\right) \sum_{i=1}^{n} y_{i}=\frac{n}{1-\pi}\\
+&\Rightarrow \sum_{i=1}^{n} y_{i} = n\pi\\
+&\Rightarrow p=\frac{\sum_{i=1}^{n} y_{i}}{n}
+\end{split}
+\end{equation*}
+
+$Var(p) =[I(\pi)]^{-1} =[\dfrac{n}{\pi(1-\pi)}]^{-1} = \dfrac{\pi(1-\pi)}{n}$
+
+\item	Given a sample of four "1"'s and one "0" (so n=5), compute $lnL\kl \pi \kr$ in terms of $\pi$ and numerically.
+
+Our estimator gives
+$$p=\frac{\sum_{i=1}^{n} y_{i}}{n}=\frac{4}{5}=0.8$$
+
+We have
+\begin{equation*}
+\begin{split}
+f(y_i = 1) &= \pi\\
+f(y_i = 0) &= (1 - \pi)
+\end{split}
+\end{equation*}
+
+Then the likelihood function is evaluated as
+\begin{equation*}
+\begin{split}
+L(\pi)=\pi^{4}(1-\pi) \Rightarrow \ln L(\pi)=4 \ln (\pi)+\ln (1-\pi)
+\end{split}
+\end{equation*}
+
+Then
+
+$$\ln L(p)=4 \ln (.8)+\ln (1-.8)=-2.502$$
+
+\item	Now suppose that in the sample of 5 observations, all are "1's".  
+Derive the numerical solution for the ML estimator for this case. 
+
+\begin{equation*}
+\begin{split}
+& p=\frac{\sum_{i=1}^{n} y_{i}}{n}=\frac{5}{5}=1\\
+\Rightarrow & \ln L(\pi)=5 \ln (\pi)\\
+\Rightarrow & \ln L(p)=5 \ln (1)=0
+\end{split}
+\end{equation*}
+
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{MLE Parameterized Exponential}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Consider the Exponential density with parameterized mean, i.e
+\begin{equation*}
+\begin{split}
+&f\kl y_i |\mlt{x}_i\kr = \frac{exp\kl -y_i /\mlt{x}_i\kt\mgr{\beta}\kr}{\mlt{x}_i\kt\mgr{\beta}} \quad \text{with} \\
+&E\kl y_i |\mlt{x}_i\kr= \mlt{x}_i\kt\mgr{\beta}, \quad V\kl y_i|\mlt{x}_i\kr = \kl  \mlt{x}_i\kt\mgr{\beta}\kr^2
+\end{split}
+\end{equation*}
+\ksp
+
+Assume the sample size is $n$ and $\mlt{x}_i$ is $k \times 1$.
+\ksp
+
+\begin{enumerate}
+\item Derive $lnL\kl \mgr{\beta}\kr, g \kl \mgr{\beta}\kr,H\kl \mgr{\beta}\kr$ and $I\kl \mgr{\beta}\kr$
+
+$$l(\boldsymbol{\beta})=\frac{\exp \left(-y_{i} / \mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)}{\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}}$$\\
+$$\ln l(\boldsymbol{\beta})=-\frac{y_{i}}{\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}}-\ln \left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)$$
+
+\begin{equation*}
+\begin{split}
+\ln L(\boldsymbol{\beta})&=-\sum_{i=1}^{n} y_{i}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-1}-\sum_{i=1}^{n} \ln \left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)\\
+g(\boldsymbol{\beta})&=\frac{\partial \ln L(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}}=\sum_{i=1}^{n}\left[y_{i}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-2} \mathbf{x}_{i}\right]-\sum_{i=1}^{n}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-1} \mathbf{x}_{\mathbf{i}}\\
+H(\boldsymbol{\beta})&=\frac{\partial g(\boldsymbol{\beta})}{\partial \boldsymbol{\beta}^{\prime}}=-2 \sum_{i=1}^{n}\left[y_{i}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-3} \mathbf{x}_{i} \mathbf{x}_{i}^{\prime}\right]+\sum_{i=1}^{n}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-2} \mathbf{x}_{i} \mathbf{x}_{i}^{\prime}\\
+I(\boldsymbol{\beta})&=-E_{y}[H(\boldsymbol{\beta})]=2 \sum_{i=1}^{n} E\left(y_{i}\right)\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-3} \mathbf{x}_{i} \mathbf{x}_{i}^{\prime}-\sum_{i=1}^{n}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-2} \mathbf{x}_{i} \mathbf{x}_{i}^{\prime}\\
+&=2 \sum_{i=1}^{n}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-3} \mathbf{x}_{i} \mathbf{x}_{i}^{\prime}-\sum_{i=1}^{n}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-2} \mathbf{x}_{i} \mathbf{x}_{i}^{\prime}
+=2 \sum_{i=1}^{n}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-2} \mathbf{x}_{i} \mathbf{x}_{i}^{\prime}-\sum_{i=1}^{n}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-2} \mathbf{x}_{i} \mathbf{x}_{i}^{\prime}\\
+& = \sum_{i=1}^{n}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-2} \mathbf{x}_{i} \mathbf{x}_{i}^{\prime}
+\end{split}
+\end{equation*}
+
+\item Using the gradient for the entire sample, show that the score identity holds.
+
+\begin{equation*}
+\begin{split}
+E_{y}[g(\boldsymbol{\beta})]&=\sum_{i=1}^{n}\left[E\left(y_{i} | \mathbf{x}_{i}\right)\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-2} \mathbf{x}_{i}-\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-1} \mathbf{x}_{\mathbf{i}}\right] \\
+&= \sum_{i=1}^{n}\left[\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-1} \mathbf{x}_{i}-\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-1} \mathbf{x}_{i}\right]=0
+\end{split}
+\end{equation*}
+
+\item Using the gradient for the entire sample, show that the information matrix identity holds.
+
+\begin{equation*}
+\begin{split}
+V[g(\boldsymbol{\beta}) | \mathbf{X}]&=\sum_{\Sigma} V\left(y_{i} | \mathbf{x}_{i}\right)\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-4} \mathbf{x}_{i} \mathbf{x}_{i}^{\prime}\\
+&=\sum_{i=1}^{n}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{2}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-4} \mathbf{x}_{i} \mathbf{x}_{i}^{\prime} = \sum_{i=1}^{n}\left(\mathbf{x}_{i}^{\prime} \boldsymbol{\beta}\right)^{-2} \mathbf{x}_{i} \mathbf{x}_{i}^{\prime}\\& = I(\boldsymbol{\beta})
+\end{split}
+\end{equation*}
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Hypothesis Testing in MLE}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Consider the hedonic property value data set from script \texttt{mod3s2c} and 
+the log-linear regression version of this model.  Estimate this model via MLE,  
+using analytical gradient and Hessian (as in \texttt{mod2s1b}). 
+Use the inverted negative Hessian to derive standard errors for all estimates. 
+Capture your MLE results in a nice table.\\
+
+Loading data:
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{data} \hlkwb{<-} \hlkwd{read.table}\hlstd{(}\hlstr{'/Users/nima/AAEC5126/data/hedonics.txt'}\hlstd{,} \hlkwc{sep}\hlstd{=}\hlstr{"\textbackslash{}t"}\hlstd{,} \hlkwc{header}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+
+\hlkwd{colnames}\hlstd{(data)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"price"}\hlstd{,} \hlstr{"lnacres"}\hlstd{,} \hlstr{"lnsqft"}\hlstd{,} \hlstr{"age"}\hlstd{,}\hlstr{"gradeab"}\hlstd{,} \hlstr{"pkadeq"}\hlstd{,}
+                   \hlstr{"vacant"}\hlstd{,} \hlstr{"empden"}\hlstd{,} \hlstr{"popden"}\hlstd{,} \hlstr{"metro"}\hlstd{,} \hlstr{"distair"}\hlstd{,} \hlstr{"disthaz"}\hlstd{)}
+
+\hlkwd{attach}\hlstd{(data)}
+\hlstd{n} \hlkwb{<-} \hlkwd{nrow}\hlstd{(data)}
+\hlstd{X} \hlkwb{<-} \hlkwd{cbind}\hlstd{(}\hlkwd{rep}\hlstd{(}\hlnum{1}\hlstd{, n), data[,}\hlopt{-}\hlnum{1}\hlstd{])}
+\hlkwd{colnames}\hlstd{(X)[}\hlnum{1}\hlstd{]} \hlkwb{<-} \hlstr{"const"}
+\hlstd{X} \hlkwb{<-} \hlkwd{as.matrix}\hlstd{(X)}
+\hlstd{k} \hlkwb{<-} \hlkwd{ncol}\hlstd{(X)}
+\hlstd{y} \hlkwb{<-} \hlkwd{log}\hlstd{(data}\hlopt{$}\hlstd{price)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\ksp
+
+Function for optimization components (llf, g, H):
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{CLRMllfan} \hlkwb{<-} \hlkwa{function}\hlstd{(}\hlkwc{x}\hlstd{,} \hlkwc{y}\hlstd{,} \hlkwc{X}\hlstd{,} \hlkwc{n}\hlstd{,} \hlkwc{k}\hlstd{)\{}
+    \hlstd{bm} \hlkwb{<-} \hlstd{x[}\hlnum{1}\hlopt{:}\hlstd{k]}
+    \hlstd{sig2} \hlkwb{<-} \hlstd{x[k} \hlopt{+} \hlnum{1}\hlstd{]}\hlopt{^}\hlnum{2}  \hlcom{#square to keep positive}
+
+    \hlstd{llf} \hlkwb{<-} \hlopt{-}\hlstd{(n}\hlopt{/}\hlnum{2}\hlstd{)} \hlopt{*} \hlkwd{log}\hlstd{(}\hlnum{2} \hlopt{*} \hlstd{pi)} \hlopt{-} \hlstd{(n}\hlopt{/}\hlnum{2}\hlstd{)} \hlopt{*} \hlkwd{log}\hlstd{(sig2)} \hlopt{-} \hlstd{((}\hlnum{1}\hlopt{/}\hlstd{(}\hlnum{2} \hlopt{*}
+        \hlstd{sig2))} \hlopt{*} \hlkwd{t}\hlstd{(y} \hlopt{-} \hlstd{X} \hlopt{%*%} \hlstd{bm)} \hlopt{%*%} \hlstd{(y} \hlopt{-} \hlstd{X} \hlopt{%*%} \hlstd{bm))}
+    \hlcom{# sample log-lh for the CLRM}
+
+    \hlcom{# Gradient}
+    \hlstd{g1} \hlkwb{<-} \hlstd{(}\hlkwd{t}\hlstd{(X)} \hlopt{%*%} \hlstd{(y} \hlopt{-} \hlstd{X} \hlopt{%*%} \hlstd{bm))}\hlopt{/}\hlstd{sig2}
+    \hlstd{g2} \hlkwb{<-} \hlopt{-}\hlstd{(n}\hlopt{/}\hlstd{(}\hlnum{2} \hlopt{*} \hlstd{sig2))} \hlopt{+} \hlstd{((}\hlkwd{t}\hlstd{(y} \hlopt{-} \hlstd{X} \hlopt{%*%} \hlstd{bm)} \hlopt{%*%} \hlstd{(y} \hlopt{-}
+        \hlstd{X} \hlopt{%*%} \hlstd{bm))}\hlopt{/}\hlstd{((}\hlnum{2} \hlopt{*} \hlstd{sig2}\hlopt{^}\hlnum{2}\hlstd{)))}
+    \hlstd{g} \hlkwb{<-} \hlkwd{rbind}\hlstd{(g1, g2)}
+
+    \hlcom{# Hessian}
+    \hlstd{H1} \hlkwb{<-} \hlopt{-}\hlstd{(}\hlkwd{t}\hlstd{(X)} \hlopt{%*%} \hlstd{X)}\hlopt{/}\hlstd{sig2}
+    \hlstd{H2} \hlkwb{<-} \hlopt{-}\hlstd{(}\hlkwd{t}\hlstd{(X)} \hlopt{%*%} \hlstd{(y} \hlopt{-} \hlstd{X} \hlopt{%*%} \hlstd{bm))}\hlopt{/}\hlstd{(sig2}\hlopt{^}\hlnum{2}\hlstd{)}
+    \hlstd{H3} \hlkwb{<-} \hlkwd{t}\hlstd{(H2)}
+    \hlstd{H4} \hlkwb{<-} \hlstd{n}\hlopt{/}\hlstd{(}\hlnum{2} \hlopt{*} \hlstd{sig2}\hlopt{^}\hlnum{2}\hlstd{)} \hlopt{-} \hlstd{(}\hlkwd{t}\hlstd{(y} \hlopt{-} \hlstd{X} \hlopt{%*%} \hlstd{bm)} \hlopt{%*%} \hlstd{(y} \hlopt{-} \hlstd{X} \hlopt{%*%}
+        \hlstd{bm)}\hlopt{/}\hlstd{sig2}\hlopt{^}\hlnum{3}\hlstd{)}
+    \hlstd{H} \hlkwb{<-} \hlkwd{rbind}\hlstd{(}\hlkwd{cbind}\hlstd{(H1, H2),} \hlkwd{cbind}\hlstd{(H3, H4))}
+    \hlkwd{return} \hlstd{(}\hlkwd{list}\hlstd{(llf, g, H))}
+\hlstd{\}}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\ksp
+
+Initial values:
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{bols} \hlkwb{<-} \hlkwd{solve}\hlstd{((}\hlkwd{t}\hlstd{(X))} \hlopt{%*%} \hlstd{X)} \hlopt{%*%} \hlstd{(}\hlkwd{t}\hlstd{(X)} \hlopt{%*%} \hlstd{y)}  \hlcom{# compute OLS estimator}
+\hlstd{e} \hlkwb{<-} \hlstd{y} \hlopt{-} \hlstd{X} \hlopt{%*%} \hlstd{bols}  \hlcom{# Get residuals.}
+\hlstd{SSR} \hlkwb{<-} \hlstd{(}\hlkwd{t}\hlstd{(e)} \hlopt{%*%} \hlstd{e)}  \hlcom{#sum of squared residuals - should be minimized}
+\hlstd{s2} \hlkwb{<-} \hlstd{(}\hlkwd{t}\hlstd{(e)} \hlopt{%*%} \hlstd{e)}\hlopt{/}\hlstd{(n} \hlopt{-} \hlstd{k)}  \hlcom{#get the regression error (estimated variance of 'eps').}
+\hlstd{Vb} \hlkwb{<-} \hlstd{s2[}\hlnum{1}\hlstd{,} \hlnum{1}\hlstd{]} \hlopt{*} \hlkwd{solve}\hlstd{((}\hlkwd{t}\hlstd{(X))} \hlopt{%*%} \hlstd{X)}
+\hlcom{# get the estimated variance-covariance matrix of bols}
+\hlstd{se} \hlkwb{=} \hlkwd{sqrt}\hlstd{(}\hlkwd{diag}\hlstd{(Vb))}  \hlcom{# get the standard erros for your coefficients;}
+\hlstd{tval} \hlkwb{=} \hlstd{bols}\hlopt{/}\hlstd{se}  \hlcom{# get your t-values.}
+\hlstd{x0} \hlkwb{<-} \hlnum{0.7} \hlopt{*} \hlkwd{c}\hlstd{(bols, s2)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+Choose the following tuner settings for the optimization algorithm:\\
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{cri} \hlkwb{<-} \hlnum{10}  \hlcom{#initial setting for convergence criterion}
+\hlstd{cri1} \hlkwb{<-} \hlnum{1e-04}  \hlcom{#convergence criterion}
+\hlcom{# (here for the sum of the absolute values of the elements in}
+\hlcom{# the gradient)}
+\hlstd{maxiter} \hlkwb{<-} \hlnum{2000}  \hlcom{#max. number of allowed iterations}
+\hlstd{stsz} \hlkwb{<-} \hlnum{0.1}  \hlcom{#step size, here it seems necessary to keep it on the small side}
+
+\hlstd{b} \hlkwb{<-} \hlstd{x0}
+\hlstd{jj} \hlkwb{<-} \hlnum{0}
+
+\hlkwa{while} \hlstd{((cri}\hlopt{>}\hlstd{cri1)} \hlopt{&} \hlstd{(jj}\hlopt{<}\hlstd{maxiter))   \{}
+    \hlstd{jj} \hlkwb{=} \hlstd{jj} \hlopt{+} \hlnum{1}
+
+    \hlstd{int} \hlkwb{<-} \hlkwd{CLRMllfan}\hlstd{(b, y, X, n, k)}
+    \hlstd{llf} \hlkwb{<-} \hlstd{int[[}\hlnum{1}\hlstd{]]}
+    \hlstd{g} \hlkwb{<-} \hlstd{int[[}\hlnum{2}\hlstd{]]}
+    \hlstd{H} \hlkwb{<-} \hlstd{int[[}\hlnum{3}\hlstd{]]}
+
+    \hlstd{cri}\hlkwb{<-}\hlkwd{sum}\hlstd{(}\hlkwd{abs}\hlstd{(g))} \hlcom{#evaluate convergence criterion}
+    \hlstd{db}\hlkwb{=}\hlkwd{solve}\hlstd{(}\hlopt{-}\hlstd{H)} \hlopt{%*%} \hlstd{g;} \hlcom{#get directional vector}
+    \hlstd{b}\hlkwb{<-} \hlstd{b}\hlopt{+}\hlstd{stsz}\hlopt{*}\hlstd{db;} \hlcom{#update b}
+
+    \hlstd{iter} \hlkwb{<-} \hlkwd{c}\hlstd{(jj, llf, cri)}
+    \hlkwd{print}\hlstd{(iter)}  \hlcom{#send iteration results to R's command window}
+
+    \hlkwa{if} \hlstd{(jj} \hlopt{==} \hlstd{maxiter) \{}
+        \hlstr{"Maximum number of iterations reached"}
+        \hlkwa{break}
+    \hlstd{\}}
+\hlstd{\}} \hlcom{#end of "while"-loop}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+\ksp
+
+Reporting the output:
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{bm} \hlkwb{<-} \hlstd{b}  \hlcom{#this includes sigma}
+\hlstd{sig2} \hlkwb{<-} \hlstd{bm[k} \hlopt{+} \hlnum{1}\hlstd{]}\hlopt{^}\hlnum{2}
+\hlstd{sem} \hlkwb{<-} \hlkwd{sqrt}\hlstd{(}\hlkwd{diag}\hlstd{(}\hlkwd{solve}\hlstd{(}\hlopt{-}\hlstd{H)))}  \hlcom{#note here we need the negative H}
+\hlstd{tm} \hlkwb{<-} \hlstd{bm}\hlopt{/}\hlstd{sem}
+
+\hlstd{ttmle} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwc{col1} \hlstd{=} \hlkwd{c}\hlstd{(}\hlstr{"constant"}\hlstd{,} \hlstr{"lnacres"}\hlstd{,} \hlstr{"lnsqft"}\hlstd{,}
+    \hlstr{"age"}\hlstd{,} \hlstr{"gradeab"}\hlstd{,} \hlstr{"pkadeq"}\hlstd{,} \hlstr{"vacant"}\hlstd{,} \hlstr{"empden"}\hlstd{,} \hlstr{"popden"}\hlstd{,}
+    \hlstr{"metro"}\hlstd{,} \hlstr{"distair"}\hlstd{,} \hlstr{"disthaz"}\hlstd{,} \hlstr{"sigma"}\hlstd{),} \hlkwc{col2} \hlstd{= bm,} \hlkwc{col3} \hlstd{= sem,}
+    \hlkwc{col4} \hlstd{= tm)}
+\hlkwd{colnames}\hlstd{(ttmle)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"variable"}\hlstd{,} \hlstr{"estimate"}\hlstd{,} \hlstr{"s.e."}\hlstd{,} \hlstr{"t"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+% latex table generated in R 3.6.2 by xtable 1.8-4 package
+% Tue Mar 31 23:16:13 2020
+\begin{table}[!h]
+\centering
+\caption{MLE output} 
+\begin{tabular}{lrrr}
+  \hline
+variable & estimate & s.e. & t \\ 
+  \hline
+constant & 9.905 & 0.326 & 30.342 \\ 
+  lnacres & 0.372 & 0.074 & 5.011 \\ 
+  lnsqft & 0.595 & 0.076 & 7.839 \\ 
+  age & 0.002 & 0.003 & 0.774 \\ 
+  gradeab & 0.716 & 0.234 & 3.059 \\ 
+  pkadeq & 0.025 & 0.130 & 0.193 \\ 
+  vacant & -0.004 & 0.005 & -0.811 \\ 
+  empden & 0.015 & 0.004 & 4.176 \\ 
+  popden & -0.003 & 0.012 & -0.223 \\ 
+  metro & 0.488 & 0.114 & 4.297 \\ 
+  distair & 0.108 & 0.018 & 6.044 \\ 
+  disthaz & 0.033 & 0.013 & 2.590 \\ 
+  sigma & 0.849 & 0.051 & 16.554 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+
+The estimated error variance for the MLE model is 0.721. \\
+The value of the log-likelihood function at convergence is -495.795\\
+
+
+\begin{enumerate}[(1)]
+\item Which coefficients are significant at the 1\% or 5\% level?
+
+The variables \texttt{lnacres}, \texttt{lnsqft}, \texttt{gradeab}, \texttt{empden}, \texttt{metro}, \texttt{distair}, and \texttt{disthaz} are significant at the 1\% and 5\% levels.\\
+
+\item Interpret the marginal effects of "lnacres" , "gradeab", and "disthaz" on the dependent variable.
+
+{\bf"lnacres"}: When acreage of property is increased by 1 unite, sales price increases by 0.372 unite.\\
+
+{\bf"gradeab"}: exp(.716)-1 = 1.046, so sales praice is 104.6\% more if property received the highest score from tax assessor rather than if it did not receive such a score.\\
+
+{\bf"disthaz"}: If the distance to hazardous waste site gets increased by 1 unit (miles), sales price will increase by 3.3\%.\\
+
+\item Derive an estimate for the \emph{variance} of the error term, along with a 95\% confidence interval.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{sig} \hlkwb{<-} \hlstd{b[k} \hlopt{+} \hlnum{1}\hlstd{]}
+\hlstd{H1} \hlkwb{<-} \hlkwd{solve}\hlstd{(}\hlopt{-}\hlstd{H)}
+\hlstd{Vsig} \hlkwb{<-} \hlstd{H1[k} \hlopt{+} \hlnum{1}\hlstd{, k} \hlopt{+} \hlnum{1}\hlstd{]}
+
+\hlstd{sig2} \hlkwb{<-} \hlstd{sig}\hlopt{^}\hlnum{2}
+\hlstd{Vsig2} \hlkwb{<-} \hlnum{4} \hlopt{*} \hlstd{sig}\hlopt{^}\hlnum{2} \hlopt{*} \hlstd{Vsig}
+\hlstd{sesig2} \hlkwb{<-} \hlkwd{sqrt}\hlstd{(Vsig2)}
+
+\hlcom{# Confidence interval:}
+\hlstd{lo} \hlkwb{<-} \hlstd{sig2} \hlopt{-} \hlnum{1.96} \hlopt{*} \hlstd{sesig2}
+\hlstd{hi} \hlkwb{<-} \hlstd{sig2} \hlopt{+} \hlnum{1.96} \hlopt{*} \hlstd{sesig2}
+
+\hlstd{ttDELTA} \hlkwb{<-} \hlkwd{data.frame}\hlstd{(}\hlkwc{col1} \hlstd{=} \hlstr{"error variance"}\hlstd{,} \hlkwc{col2} \hlstd{= sig2,} \hlkwc{col3} \hlstd{= sesig2,}
+    \hlkwc{col4} \hlstd{= lo,} \hlkwc{col5} \hlstd{= hi)}
+\hlkwd{colnames}\hlstd{(ttDELTA)} \hlkwb{<-} \hlkwd{c}\hlstd{(}\hlstr{"variable"}\hlstd{,} \hlstr{"estimate"}\hlstd{,} \hlstr{"s.e."}\hlstd{,} \hlstr{"lower"}\hlstd{,}
+    \hlstr{"upper"}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+\ksp
+
+% latex table generated in R 3.6.2 by xtable 1.8-4 package
+% Tue Mar 31 23:28:21 2020
+\begin{table}[!h]
+\centering
+\caption{MLE results for error variance using DELTA method} 
+\begin{tabular}{lrrrr}
+  \hline
+variable & estimate & s.e. & lower & upper \\ 
+  \hline
+error variance & 0.721 & 0.087 & 0.550 & 0.891 \\ 
+   \hline
+\end{tabular}
+\end{table}
+
+\ksp
+
+\item Perform Wald tests for the following hypotheses. For each hypothesis obtain the test statistic and the corresponding p-value, and state your decision (use script \texttt{mod3s2b} for guidance on Wald tests in an MLE context):\\
+
+    \begin{enumerate} [(a)]
+    \item The marginal effects of \texttt{age} ($\beta_4$), \texttt{pkadeq} ($\beta_6$), \texttt{vacant} ($\beta_7$) and \texttt{popden} ($\beta_9$) are jointly zero.
+    
+$\mathcal{H}_0$:$\beta_4$=0, $\beta_6$=0, $\beta_7$=0, $\beta_9$=0\\
+\ksp
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{invH} \hlkwb{<-} \hlkwd{solve}\hlstd{(}\hlopt{-}\hlstd{H)}
+\hlstd{Vb} \hlkwb{<-} \hlstd{invH[}\hlnum{1}\hlopt{:}\hlstd{k,} \hlnum{1}\hlopt{:}\hlstd{k]}  \hlcom{#we can use any of the ususal estimators for Vb for the Wald test;}
+\hlstd{b} \hlkwb{<-} \hlstd{bm[}\hlnum{1}\hlopt{:}\hlstd{k]}  \hlcom{# here we'll stick to the inverted Hessian}
+\hlstd{Rmat1} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{),} \hlkwc{nrow} \hlstd{=} \hlnum{1}\hlstd{)}
+\hlstd{Rmat2} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{),} \hlkwc{nrow} \hlstd{=} \hlnum{1}\hlstd{)}
+\hlstd{Rmat3} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{),} \hlkwc{nrow} \hlstd{=} \hlnum{1}\hlstd{)}
+\hlstd{Rmat4} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{1}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{),} \hlkwc{nrow} \hlstd{=} \hlnum{1}\hlstd{)}
+\hlstd{Rmat} \hlkwb{<-} \hlkwd{rbind}\hlstd{(Rmat1, Rmat2, Rmat3, Rmat4)}
+\hlstd{q} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{),} \hlkwc{nrow} \hlstd{=} \hlnum{4}\hlstd{)}
+\hlstd{J} \hlkwb{<-} \hlkwd{nrow}\hlstd{(Rmat)}
+
+\hlstd{W} \hlkwb{<-} \hlkwd{t}\hlstd{(Rmat} \hlopt{%*%} \hlstd{b} \hlopt{-} \hlstd{q)} \hlopt{%*%} \hlkwd{solve}\hlstd{(Rmat} \hlopt{%*%} \hlstd{Vb} \hlopt{%*%} \hlkwd{t}\hlstd{(Rmat))} \hlopt{%*%}
+    \hlstd{(Rmat} \hlopt{%*%} \hlstd{b} \hlopt{-} \hlstd{q)}
+\hlstd{pval} \hlkwb{=} \hlnum{1} \hlopt{-} \hlkwd{pchisq}\hlstd{(W, J)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+\ksp
+
+The Wald-statistic for this test is 1.639.\\
+The corresponding p-value is 0.802.\\
+
+Therefore we can not reject our null-hypothesis (which is marginal effects of \texttt{age} ($\beta_4$), \texttt{pkadeq} ($\beta_6$), \texttt{vacant} ($\beta_7$) and \texttt{popden} ($\beta_9$) are jointly zero) at 1\% or 5\% level of significance. 
+\ksp
+
+    \item The effect of an additional mile away from the airport on the value of a property 
+is LESS OR EQUAL TO 3 times that of an additional mile from the hazardous waste site.\\
+(\emph{Hint: There are multiple ways to set up the null hypothesis. Choose the one that has a zero on the right hand side of the equation.})
+
+$\mathcal{H}_0$:$\beta_{11}$-3*$\beta_{12}$=0
+\ksp
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{invH} \hlkwb{<-} \hlkwd{solve}\hlstd{(}\hlopt{-}\hlstd{H)}
+\hlstd{Vb} \hlkwb{<-} \hlstd{invH[}\hlnum{1}\hlopt{:}\hlstd{k,} \hlnum{1}\hlopt{:}\hlstd{k]}
+\hlstd{b} \hlkwb{<-} \hlstd{bm[}\hlnum{1}\hlopt{:}\hlstd{k]}
+
+\hlstd{Rmat1} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{1}\hlstd{,} \hlopt{-}\hlnum{3}\hlstd{),} \hlkwc{nrow} \hlstd{=} \hlnum{1}\hlstd{)}
+\hlstd{Rmat} \hlkwb{<-} \hlkwd{rbind}\hlstd{(Rmat1)}
+\hlstd{q} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{),} \hlkwc{nrow} \hlstd{=} \hlnum{1}\hlstd{)}
+\hlstd{J} \hlkwb{<-} \hlkwd{nrow}\hlstd{(Rmat)}
+
+\hlstd{W} \hlkwb{<-} \hlkwd{t}\hlstd{(Rmat} \hlopt{%*%} \hlstd{b} \hlopt{-} \hlstd{q)} \hlopt{%*%} \hlkwd{solve}\hlstd{(Rmat} \hlopt{%*%} \hlstd{Vb} \hlopt{%*%} \hlkwd{t}\hlstd{(Rmat))} \hlopt{%*%}
+    \hlstd{(Rmat} \hlopt{%*%} \hlstd{b} \hlopt{-} \hlstd{q)}
+\hlstd{pval} \hlkwb{=} \hlnum{1} \hlopt{-} \hlkwd{pchisq}\hlstd{(W, J)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+\ksp
+
+The Wald-statistic for this test is 0.046.\\
+The corresponding p-value is 0.831.\\
+\ksp
+
+This value greater than .05 (5\% level of significance); so, we cannot reject our hypothesis ($\mathcal{H}_0$: $\beta_{11} - 3\beta_{12} \geq 0$). Hence it can be said that an additional mile away from the airport increases the value of a property by less than 3 times an additional mile from the hazardous waste site.  \\
+
+
+
+
+    \item The ratio of (additional mile from airport / additional mile from haz. waste site) 
+is NO SMALLER THAN the squared effect of "log of square footage".\\
+(\emph{Hint: There are multiple ways to set up the null hypothesis. Choose the one that has a zero on the right hand side of the equation.})
+
+$\mathcal{H}_0$: $\frac{\beta_{11}}{\beta_{12}}-(\beta_3)^2=0$\\
+\ksp
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{b3} \hlkwb{<-} \hlstd{b[}\hlnum{3}\hlstd{]}
+\hlstd{b11} \hlkwb{=} \hlstd{b[}\hlnum{11}\hlstd{]}
+\hlstd{b12} \hlkwb{=} \hlstd{b[}\hlnum{12}\hlstd{]}
+\hlstd{cb} \hlkwb{=} \hlstd{(b11}\hlopt{/}\hlstd{b12)} \hlopt{-} \hlstd{(b3)}\hlopt{^}\hlstd{(}\hlnum{2}\hlstd{)}
+\hlstd{q} \hlkwb{=} \hlnum{0}
+\hlstd{J} \hlkwb{=} \hlnum{1}
+\hlstd{delb3} \hlkwb{=} \hlopt{-}\hlstd{(}\hlnum{2} \hlopt{*} \hlstd{b3)}
+\hlstd{delb11} \hlkwb{=} \hlnum{1}\hlopt{/}\hlstd{b12}
+\hlstd{delb12} \hlkwb{=} \hlopt{-}\hlstd{b11}\hlopt{/}\hlstd{(b12)}\hlopt{^}\hlstd{(}\hlnum{2}\hlstd{)}
+\hlstd{C} \hlkwb{<-} \hlkwd{matrix}\hlstd{(}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,} \hlnum{0}\hlstd{, delb3,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{,} \hlnum{0}\hlstd{, delb11, delb12),}
+    \hlkwc{nrow} \hlstd{=} \hlnum{1}\hlstd{)}
+\hlstd{Vcb} \hlkwb{=} \hlstd{C} \hlopt{%*%} \hlstd{Vb} \hlopt{%*%} \hlkwd{t}\hlstd{(C)}
+\hlstd{W} \hlkwb{=} \hlkwd{t}\hlstd{(cb} \hlopt{-} \hlstd{q)} \hlopt{%*%} \hlkwd{solve}\hlstd{(Vcb)} \hlopt{%*%} \hlstd{(cb} \hlopt{-} \hlstd{q)}
+\hlstd{pval} \hlkwb{=} \hlnum{1} \hlopt{-} \hlkwd{pchisq}\hlstd{(W, J)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+\ksp
+\end{enumerate}
+\ksp
+The Wald-statistic for this test is 5.017.\\
+The corresponding p-value is 0.025. \\
+
+Based on the p-value, we can not reject the null hypothesis. Then we can say that ratio of (additional mile from airport / additional mile from hazardous waste site) is larger than the squared effect of "log of square footage.\\\\
+\ksp
+
+
+    
+\end{enumerate}
+
+
+
+
+\end{document}
+
+ 
+

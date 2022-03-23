@@ -1,0 +1,334 @@
+%Problem Set 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Sweave('C:/Klaus/AAEC5126/problemsets/ps3',syntax=SweaveSyntaxNoweb)
+
+%I) DEFINE DOCUMENTCLASS AND LOAD ALL REQUIRED PACKAGES
+\documentclass[11pt,reqno]{amsart}\usepackage[]{graphicx}\usepackage[]{color}
+% maxwidth is the original width if it is less than linewidth
+% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.196, 0.196, 0.196}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.063,0.58,0.627}{#1}}%
+\newcommand{\hlstr}[1]{\textcolor[rgb]{0.063,0.58,0.627}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.588,0.588,0.588}{#1}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0.196,0.196,0.196}{#1}}%
+\newcommand{\hlstd}[1]{\textcolor[rgb]{0.196,0.196,0.196}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.231,0.416,0.784}{#1}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.627,0,0.314}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0,0.631,0.314}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.78,0.227,0.412}{#1}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt}   %keep it simple
+\usepackage{hyperref}
+\usepackage{graphicx}      % for fancy graphics
+\usepackage{setspace}      % for basic formatting
+\usepackage{enumerate}     % for more flexibility with numbered lists
+%\SweaveOpts{keep.source=TRUE}  %KEY - this preserves R formatting and comments
+
+% You may need to load all or some of these packages -
+%follow the instructions on our course web site under "Help with LaTex"
+
+%II) PREAMBLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{plain} %puts page number center bottom
+\setlength{\topmargin}{0in}
+\setlength{\textheight}{8.5in}
+\setlength{\oddsidemargin}{.0in}
+\setlength{\evensidemargin}{.0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\footskip}{.5in}
+\setlength{\parindent}{0in} %suppress indentation
+%\onehalfspacing
+
+\newcommand{\mlt}[1]{\mlt{#1}} %matrix bold for Latin symbols
+\newcommand{\mgr}[1]{\boldsymbol{#1}}%matrix bold for Greek symbols
+\newcommand{\kR}{\tt R\rm{} }%shortcut for "R" symbol
+\newcommand{\ksp}{\vspace{0.1in}}   % insert some space between chunks
+%feel free to add your own shortcuts  - here a mine:
+\newcommand{\kl}{\left(}
+\newcommand{\kr}{\right)}
+\newcommand{\kll}{\left\{}
+\newcommand{\krr}{\right\}}
+\newcommand{\kmu}{\mgr{\mu}}
+\newcommand{\kpsi}{\mgr{\psi}}
+\newcommand{\kphi}{\mgr{\phi}}
+\newcommand{\kgam}{\mgr{\gamma}}
+\newcommand{\ktheta}{\mgr{\theta}}
+\newcommand{\kbeta}{\mgr{\beta}}
+\newcommand{\kdelta}{\mgr{\delta}}
+\newcommand{\kt}{^{\prime}}
+\newcommand{\kdel}{\partial}
+\newcommand{\kdot}{\kl . \kr}
+\newcommand{\keps}{\epsilon}
+\newcommand{\kx}{\mlt{x}}
+\newcommand{\kX}{\mlt{X}}
+\newcommand{\kV}{\mlt{V}}
+\newcommand{\kM}{\mlt{M}}
+\newcommand{\kP}{\mlt{P}}
+\newcommand{\ky}{\mlt{y}}
+\newcommand{\kb}{\mlt{b}}
+\newcommand{\kc}{\mlt{c}}
+\newcommand{\ki}{\mlt{i}}
+\newcommand{\ke}{\mlt{e}}
+\newcommand{\klam}{\lambda}
+\newcommand{\kp}{\mlt{p}}
+\newcommand{\kprob}{\text{prob}}
+\newcommand{\kz}{\mlt{z}}
+\newcommand{\ksig}{\sigma^2}
+\newcommand{\kSig}{\mgr{\Sigma}}
+\newcommand{\klog}{\text{log}}
+\newcommand{\kols}{\kl \kX\kt\kX\kr^{-1}\kX\kt\ky}
+\newcommand{\kSSE}{\kl \ky-\kX\kb\kr\kt\kl\ky-\kX\kb\kr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+%III) TOP MATTER INFORMATION
+\title{Problem Set 3}
+\author{Nima Mohammadi \\ \href{mailto:nimamo@vt.edu}{\textbf{nimamo@vt.edu}}} %ENTER YOUR NAME HERE
+\maketitle %this comes at the end of the top matter to set it.
+
+
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Instrumental Variables/TSLS}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Consider the following regression model: $h_{i}=\beta_{1} a g e_{i}+\beta_{2} e x_{i}+\varepsilon_{i}$ 
+
+where $h_{i}$ is a (continuous) health index for professional worker $i$, $age_{i}$ is the age of worker $i$ and $ex_i$ is the hours of exercise per week for worker $i$. Assume all these (and subsequent variables) are expressed as deviations from their respective mean (So we don't have to worry about intercept terms, which will make the following a bit easier).  The full model can thus be written as 
+
+$\mlt{h}=\mlt{X} \boldsymbol{\beta}+\boldsymbol{\varepsilon} \text { where } \quad \mlt{X}=\left[\begin{array}{lll}
+\mlt{age} & \mlt{ex}
+\end{array}\right] \text { and } \quad \boldsymbol{\beta}=\left[\begin{array}{l}
+\beta_{1} \\
+\beta_{2}
+\end{array}\right]$
+
+
+\ksp
+\begin{enumerate}[(a)]
+\item  Why might you suspect that exercise could be correlated with the error term? (provide some reasoning / intuition).\\
+
+
+There are clearly many more variables that can potentially impacts on the health of the worker. For example, indivual dietary choice, smoking habits or the time that the worker spends working. That is there are many variables that are excluded which are exhibited in the error term. However, the time of the worker is partitioned between exercise and other activities that impacts his/her health, such as the time spent working per week. That is working hours in an omitted variable that is correlated with exercise and consequently we can conclude that the error term is correlated with the variable exercise.
+
+\ksp
+\item If this is the case (i.e $\operatorname{plim}\left(\frac{1}{n} \mlt{ex}^{\prime} \mlt{\varepsilon}\right)=\varphi \neq 0$) determine whether $b_{OLS}$ is a consistent estimator for $\kbeta$.\\
+
+\begin{equation*}
+\begin{split}
+& \operatorname{plim} \mlt{b}=\kbeta+ \operatorname{plim} \left(\frac{1}{n} \kX\kt\kX\right)^{-1} \operatorname{plim} \left(\frac{1}{n} \mlt{X}^{\prime} \varepsilon\right)=\beta+\mlt{Q}_{\mlt{X} \mlt{X}}^{-1} p \lim \left[\begin{array}{c}
+  \frac{1}{n}\bold{age}\kt\mgr{\varepsilon}  \\
+  \frac{1}{n}\bold{ex}\kt\mgr{\varepsilon}  \\
+\end{array}\right]=\kbeta+\mlt{Q}_{\mlt{X} \mlt{X}}^{-1}\left[\begin{array}{l}
+\mgr{\gamma} \\
+\mgr{\varphi}
+\end{array}\right]\\
+& \varphi\neq 0 \rightarrow \operatorname{plim}\bold{b}\neq \kbeta
+\end{split}
+\end{equation*}\\
+
+
+That is $b_{OLS}$ is not a consistent estimator for $\kbeta$.
+
+\ksp
+\item Suppose you have information on all workers in your sample for two additional variables: "distance from home to nearest health club" $(dh_i)$, and "distance from work to nearest health club" $(dw_i)$.
+Assume neither of these variables are correlated with $\mgr{\varepsilon}$ , i.e. $\operatorname{plim} (\bold{dh}\kt \mgr{\varepsilon} ) = \operatorname{plim} (\bold{dw}\kt \mgr{\varepsilon} ) = \mlt{0}$ . Why might these variables be good instruments for exercise?\\
+
+For a good instrumental variable it should have two properties: i) noncorrelated with error term, and ii) highly correlated with troublemakers. 
+
+The first condition is satisfied as this property is stated in the question. Also, they are highly correlated with the exercise time. Intuitively, being closer to the exercise club increases the frequency of going to the club and exercising. Hence, they are good IVs for exercise.\\
+
+\ksp
+\item Show how these additional variables can be used to derive a consistent TSLS estimator for $\kbeta$ (show all detailed steps). Proof that this estimator is indeed consistent. (Assume that $plim(\mlt{Z}\kt\mlt{Z}/n) = \bold{Q}_\bold{zz}$ and $\operatorname{plim}(\mlt{Z}\kt\kX/n) = \bold{Q}_\bold{zx}$ are well-behaved finite matrices.)\\
+
+\begin{equation*}
+\begin{split}
+\operatorname{plim}\bold{b}_{TSLS} &= \operatorname{plim}\left[\left(\hat{\mlt{X}}^{\prime} \hat{\mlt{X}}\right)^{-1} \hat{\mlt{X}}^{\prime} \mlt{y}\right] = \operatorname{plim}[(\kX\kt\kZ(\kZ\kt\kZ)^{-1}\kZ\kt\kX)^{-1}\kX\kt\kZ(\kZ\kt\kZ)^{-1}\kZ\kt\ky]\\
+&= \operatorname{plim} [(\kX\kt\kZ(\kZ\kt\kZ)^{-1}\kZ\kt\kX)^{-1}\kX\kt\kZ(\kZ\kt\kZ)^{-1}\kZ\kt(\kX\kbeta+\mgr{\varepsilon})]
+\end{split}
+\end{equation*}
+\begin{equation*}
+\begin{split}
+\Rightarrow \operatorname{plim} \bold{b}_{TSLS}=\kbeta + (\bold{Q}\kt_{\mlt{Z}\kX}(\bold{Q}_{\mlt{Z}\mlt{Z}})^{-1}\bold{Q}_{\mlt{Z}\kX})^{-1}\bold{Q}\kt_{\mlt{Z}\kX}(\bold{Q}_{\mlt{Z}\mlt{Z}})^{-1} \operatorname{plim}((1/n)\mlt{Z}\kt\mgr{\varepsilon})
+\end{split}
+\end{equation*}
+
+Since the instrument is derived such that $COV(\mlt{Z}_i , \mgr{\varepsilon})=0$, so $\operatorname{plim}(\frac{1}{n}\mlt{Z}\kt\mgr{\varepsilon})=0$ Then we have
+$\operatorname{plim} \bold{b}_{TSLS}=\kbeta$
+which is a consistent estimator.\\
+
+\item What would you use for a consistent estimator for $\sigma^{2}$ ? (show detailed expression)
+\ksp
+
+The Asymptotic variance  of $\kb_{TSLS}$ can be estimated by:
+\begin{equation*}
+\begin{split}
+& \hat{\mlt{V}}_a(\kb_{TSLS})=\hat{\sigma}^2 (\kX'\mlt{Z}(\mlt{Z}'\mlt{Z})^{ - 1} \mlt{Z}'\kX)^{ - 1} 
+\end{split}
+\end{equation*}
+$\hat{\sigma}^2$ is estimator for ${\sigma}^2$ and can be derived as:
+\begin{equation*}
+\begin{split}
+& \hat{\sigma}^2=\frac{{\hat{\mgr{\varepsilon}} '\hat{\mgr{\varepsilon} }}}{n}
+\end{split}
+\end{equation*}
+where residuals, $\hat{\mgr{\varepsilon}}$, can be derived as:
+\begin{equation*}
+\begin{split}
+& \hat{\mgr{\varepsilon}}=\ky - \kX \kb_{TSLS}
+\end{split}
+\end{equation*}
+Needless to say the original $\kX$ is used in the computation of the residuals. \\
+
+\item Outline in detail how a Hausman test and a Wu test could be performed to test $H_0:\varphi= 0$\\
+
+The Hausman test is a type of Wald test which examines if the difference between 2 sets of estimates arise from 2 different models, weighted by the difference in their asymptotic variance-covariance
+matrix, is "large enough" to reject the null hypothesis that they are the same.
+
+The rationale is that the first model considered is known to generate consistent estimates under OV-type problems or other mis-specification issues, while the second model is inconsistent if there are indeed OV
+type problems or mis-specifications. However, the first estimator is always less efficient than the second. So if there are no OV-type or mis-specification problems, it would be better to choose the second model.
+If there are OV type problems, we should use the first model (since consistency is generally more important than efficiency). 
+
+For the case at hand, the IV (or TSLS) model is "model 1" - consistent under OV-problems, however it is less efficient. The OLS model is "model 2" - more efficient, but inconsistent under OV-problems. The H-test
+examines if the two estimators are "close enough" to conclude that OLS is fine, i.e. that there are no OV type problems (the null hypothesis). If the weighted difference between the estimators is "too
+large", the test would reject the null.
+The H-test statistic is thus derived as:
+
+\begin{equation*}
+\begin{split}
+&  H = \mlt{d}'(\hat V_a (\mlt{b}_{TSLS} ) - \hat V_a (\mlt{b_{OLS}}))^{ - 1} \mlt{d} = \mlt{d}'(s^2 (\hat \kX'\hat \kX)^{-1}  - s^2 (\kX'\kX)^{ - 1} )^{ - 1} \mlt{d} \sim \chi ^2 (J)   
+\end{split}
+\end{equation*}
+where $\mlt{d} = (\mlt{b_{TSLS}}  - \kb_{OLS})$, $\hat {\kX} = \mlt{Z}(\mlt{Z}'\mlt{Z})^{ - 1} \mlt{Z}'\kX$, $s^2  = \frac{{\ke'\ke}}{{n - k}}$.\\
+
+
+When we fail to reject the null we mean that the difference between the estimators are not too large, and since TSLS gives consistent estimates, $\mlt{b_{TSLS}}  = \kb_{OLS}$ are consistent. Since $\kb_{OLS}$ is consistent  using equation 1 we must have:  
+\begin{equation*}
+\begin{split}
+& \operatorname{plim} \kb = \kbeta \Rightarrow \mlt{Q_{XX}}^{ - 1} \left[ {\begin{array}{*{20}c}
+   \mgr{\gamma}   \\
+   \mgr{\varphi}   \\
+\end{array}} \right] = \mlt{0} \Rightarrow \mgr{\gamma}=0 \mbox{ and } \mgr{\varphi}=0
+\end{split}
+\end{equation*}
+Therefore we can test $H_0 :  \mgr{\varphi} = 0$ with Hausman test and when we fail to reject the "Hausman test null" we fail to reject $H_0$ too. In addition, when we reject the "Hausman test null" we can claim that "either $\mgr{\gamma} \neq 0$ or $ \mgr{\varphi} \neq 0$ or both". In that case the alternative hypothesis is \textit{not} $H_1: \mgr{\varphi} \neq 0$. Even in this case we might have $\mgr{\varphi} =0$.  
+
+"Wu test" is an equivalent test that avoids the inverse problem of the Hausman test. we know that a rejection of the null hypothesis would reveal Omitted Variable problems in the OLS model. This  suggests that we should follow an IV approach. On the other hand if the null is not rejected, the OLS is fine. As in the case of the Hausman test, when we fail to reject the "Wu test null" we fail to reject $H_0 :  \mgr{\varphi} = 0$ but if we reject "Wu test null" we can just say that "either $\mgr{\gamma} \neq 0$ or $ \mgr{\varphi} \neq 0$ or both".  
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Instrumental Variables and Specification Tests in \kR}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Use Greene's quarterly macroeconomic data (data set "consumption” on our course web site).
+
+
+Consider the model  
+
+
+$y_{t}=\beta_{0}+\beta_{1} dpi_{t}+\beta_{2} cpi_{t}+\beta_{3} \text {rate}_{t}+\varepsilon_{t}$
+
+where \\
+$t$ indexes the current time period, \\
+$y=$ aggregate consumption (billion dollars, denoted as "realcons" in the variable list),\\
+$dpi=$ aggregate disposable income ("realdpi" in the list), \\
+$cpi=$ consumer price index, and \\
+$rate$ = real interest rate ("realint" in the list).
+
+You suspect that $dpi$ is correlated with the error term for the same time period. You decide to instrument it with $dpi$, and $y_{t-1}$, i.e. lagged dpi and lagged consumption.
+
+Use the procedure outlined in script \texttt{mod4s1bto} generate all needed lagged variables.
+
+\begin{enumerate}[(a)]
+\item Run the simple OLS model given in (1). Comment on the significance levels of the estimated coefficients. Are the signs of the significant coefficients as expected? Explain.
+
+\begin{knitrout}
+\definecolor{shadecolor}{rgb}{1, 1, 1}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlstd{data}\hlkwb{<-} \hlkwd{read.table}\hlstd{(}\hlstr{'/Users/nima/AAEC5126/data/consumption.txt'}\hlstd{,} \hlkwc{sep}\hlstd{=}\hlstr{"\textbackslash{}t"}\hlstd{,} \hlkwc{header}\hlstd{=}\hlnum{FALSE}\hlstd{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+# <<R1,echo=TRUE>>=
+# # Define variables
+# n<-nrow(data) 
+# y<-realcons[2:n]
+# ylag<-realcons[1:(n-1)]
+# dpi<-realdpi[2:n]
+# dpilag<-realdpi[1:(n-1)]
+# cpi<-cpi[2:n]
+# rate<-realint[2:n]
+# n<-length(y)  #IMPORTANT - re-define n!
+# #
+# X<-cbind(rep(1,n),dpi,cpi,rate)
+# k<-ncol(X)
+# #
+# bols<-solve((t(X)) %*% X) %*% (t(X) %*% y)# compute OLS estimator
+# e<-y-X%*%bols # Get residuals.
+# SSR<-(t(e)%*%e)#sum of squared residuals - should be minimized
+# s2<-(t(e)%*%e)/(n-k) #get the regression error (estimated variance of "eps").
+# s2ols<-s2 #for Hausman test below
+# Vb<-s2[1,1]*solve((t(X))%*%X) # get the estimated VCOV matrix of bols
+# se=sqrt(diag(Vb)) # get the standard erros for your coefficients;
+# tval=bols/se # get your t-values.
+# #
+# tt<-data.frame(col1=c("constant","dpi","cpi","rate"),
+#                 col2=bols,
+#                 col3=se,
+#                 col4=tval)
+# colnames(tt)<-c("variable","estimate","s.e.","t")
+# @
+
+\end{enumerate}
+\end{document}

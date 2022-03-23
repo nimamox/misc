@@ -1,0 +1,715 @@
+%Problem Set 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Sweave('C:/Klaus/AAEC5126/problemsets/ps4',syntax=SweaveSyntaxNoweb)
+
+%I) DEFINE DOCUMENTCLASS AND LOAD ALL REQUIRED PACKAGES
+\documentclass[11pt,reqno]{amsart}   %keep it simple
+\usepackage{hyperref}
+\usepackage{graphicx}      % for fancy graphics
+\usepackage{setspace}      % for basic formatting
+\usepackage{enumerate}     % for more flexibility with numbered lists
+%\SweaveOpts{keep.source=TRUE}  %KEY - this preserves R formatting and comments
+
+% You may need to load all or some of these packages -
+%follow the instructions on our course web site under "Help with LaTex"
+
+%II) PREAMBLE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{plain} %puts page number center bottom
+\setlength{\topmargin}{0in}
+\setlength{\textheight}{8.5in}
+\setlength{\oddsidemargin}{.0in}
+\setlength{\evensidemargin}{.0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\footskip}{.5in}
+\setlength{\parindent}{0in} %suppress indentation
+%\onehalfspacing
+
+\newcommand{\mlt}[1]{\mathbf{#1}} %matrix bold for Latin symbols
+\newcommand{\mgr}[1]{\mathbf{#1}}%matrix bold for Greek symbols
+\newcommand{\kR}{\tt R\rm{} }%shortcut for "R" symbol
+\newcommand{\ksp}{\vspace{0.1in}}   % insert some space between chunks
+%feel free to add your own shortcuts  - here a mine:
+\newcommand{\kl}{\left(}
+\newcommand{\kr}{\right)}
+\newcommand{\kll}{\left\{}
+\newcommand{\krr}{\right\}}
+\newcommand{\kmu}{\mgr{\mu}}
+\newcommand{\kpsi}{\mgr{\psi}}
+\newcommand{\kphi}{\mgr{\phi}}
+\newcommand{\kgam}{\mgr{\gamma}}
+\newcommand{\ktheta}{\mgr{\theta}}
+\newcommand{\kbeta}{\mgr{\beta}}
+\newcommand{\kdelta}{\mgr{\delta}}
+\newcommand{\kt}{^{\prime}}
+\newcommand{\kdel}{\partial}
+\newcommand{\kdot}{\kl . \kr}
+\newcommand{\keps}{\epsilon}
+\newcommand{\kx}{\mlt{x}}
+\newcommand{\kX}{\mlt{X}}
+\newcommand{\kZ}{\mlt{Z}}
+\newcommand{\kV}{\mlt{V}}
+\newcommand{\kM}{\mlt{M}}
+\newcommand{\kP}{\mlt{P}}
+\newcommand{\ky}{\mlt{y}}
+\newcommand{\kb}{\mlt{b}}
+\newcommand{\kc}{\mlt{c}}
+\newcommand{\ki}{\mlt{i}}
+\newcommand{\ke}{\mlt{e}}
+\newcommand{\klam}{\lambda}
+\newcommand{\kp}{\mlt{p}}
+\newcommand{\kprob}{\text{prob}}
+\newcommand{\kz}{\mlt{z}}
+\newcommand{\ksig}{\sigma^2}
+\newcommand{\kSig}{\mgr{\Sigma}}
+\newcommand{\klog}{\text{log}}
+\newcommand{\kols}{\kl \kX\kt\kX\kr^{-1}\kX\kt\ky}
+\newcommand{\kSSE}{\kl \ky-\kX\kb\kr\kt\kl\ky-\kX\kb\kr}
+
+\newenvironment{nouppercase}{%
+  \let\uppercase\relax%
+  \renewcommand{\uppercasenonmath}[1]{}}{}
+  
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+%III) TOP MATTER INFORMATION
+\title{Problem Set 4}
+\author{Nima Mohammadi \\ \href{mailto:nimamo@vt.edu}{\textbf{nimamo@vt.edu}}} %ENTER YOUR NAME HERE
+\begin{nouppercase}
+\maketitle %this comes at the end of the top matter to set it.
+\end{nouppercase}
+
+
+
+<<setup, include=FALSE, cache=FALSE>>=
+library(knitr)
+opts_chunk$set(fig.path='figure/theme-', cache.path='cache/theme-', cache=TRUE)
+options(formatR.arrow=TRUE,width=60)
+#knit_hooks$set(par=function(before, options, envir){if (before) par(mar=c(4,4,.1,.1),cex.lab=.95,cex.axis=.9,mgp=c(2,.7,0),tcl=-.3)})
+@
+<<denim, cache=FALSE, echo=FALSE>>=
+knit_theme$set("bclear")
+@
+
+
+<<R0,echo=FALSE,cache=FALSE>>=
+options(prompt = "R> ", digits = 4)
+options(continue=" ") 
+setwd('/Users/nima/AAEC5126/HW4/')
+options(continue=" ")
+options(width=60)
+set.seed(37)  
+library("xtable")
+library("corpcor") #for pseudo-inverse
+@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Instrumental Variables/TSLS}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Consider the following regression model: $h_{i}=\beta_{1} a g e_{i}+\beta_{2} e x_{i}+\varepsilon_{i}$ 
+
+where $h_{i}$ is a (continuous) health index for professional worker $i$, $age_{i}$ is the age of worker $i$ and $ex_i$ is the hours of exercise per week for worker $i$. Assume all these (and subsequent variables) are expressed as deviations from their respective mean (So we don't have to worry about intercept terms, which will make the following a bit easier).  The full model can thus be written as 
+
+$\mlt{h}=\mlt{X} \boldsymbol{\beta}+\boldsymbol{\varepsilon} \text { where } \quad \mlt{X}=\left[\begin{array}{lll}
+\mlt{age} & \mlt{ex}
+\end{array}\right] \text { and } \quad \boldsymbol{\beta}=\left[\begin{array}{l}
+\beta_{1} \\
+\beta_{2}
+\end{array}\right]$
+
+
+\ksp
+\begin{enumerate}[(a)]
+\item  Why might you suspect that exercise could be correlated with the error term? (provide some reasoning / intuition).\\
+
+
+There are clearly many more variables that can potentially impacts on the health of the worker. For example, indivual dietary choice, smoking habits or the time that the worker spends working. That is there are many variables that are excluded which are exhibited in the error term. However, the time of the worker is partitioned between exercise and other activities that impacts his/her health, such as the time spent working per week. That is working hours in an omitted variable that is correlated with exercise and consequently we can conclude that the error term is correlated with the variable exercise.
+
+\ksp
+\item If this is the case (i.e $\operatorname{plim}\left(\frac{1}{n} \mlt{ex}^{\prime} \mlt{\varepsilon}\right)=\varphi \neq 0$) determine whether $b_{OLS}$ is a consistent estimator for $\kbeta$.\\
+
+\begin{equation*}
+\begin{split}
+& \operatorname{plim} \mlt{b}=\kbeta+ \operatorname{plim} \left(\frac{1}{n} \kX\kt\kX\right)^{-1} \operatorname{plim} \left(\frac{1}{n} \mlt{X}^{\prime} \varepsilon\right)=\beta+\mlt{Q}_{\mlt{X} \mlt{X}}^{-1} p \lim \left[\begin{array}{c}
+  \frac{1}{n}\bold{age}\kt\mgr{\varepsilon}  \\
+  \frac{1}{n}\bold{ex}\kt\mgr{\varepsilon}  \\
+\end{array}\right]=\kbeta+\mlt{Q}_{\mlt{X} \mlt{X}}^{-1}\left[\begin{array}{l}
+\mgr{\gamma} \\
+\mgr{\varphi}
+\end{array}\right]\\
+& \varphi\neq 0 \rightarrow \operatorname{plim}\bold{b}\neq \kbeta
+\end{split}
+\end{equation*}\\
+
+
+
+That is $b_{OLS}$ is not a consistent estimator for $\kbeta$.
+
+\ksp
+\item Suppose you have information on all workers in your sample for two additional variables: "distance from home to nearest health club" $(dh_i)$, and "distance from work to nearest health club" $(dw_i)$.
+Assume neither of these variables are correlated with $\mgr{\varepsilon}$ , i.e. $\operatorname{plim} (\bold{dh}\kt \mgr{\varepsilon} ) = \operatorname{plim} (\bold{dw}\kt \mgr{\varepsilon} ) = \mlt{0}$ . Why might these variables be good instruments for exercise?\\
+
+For a good instrumental variable it should have two properties: i) noncorrelated with error term, and ii) highly correlated with troublemakers. 
+
+The first condition is satisfied as this property is stated in the question. Also, they are highly correlated with the exercise time. Intuitively, being closer to the exercise club increases the frequency of going to the club and exercising. Hence, they are good IVs for exercise.\\
+
+\ksp
+\item Show how these additional variables can be used to derive a consistent TSLS estimator for $\kbeta$ (show all detailed steps). Proof that this estimator is indeed consistent. (Assume that $plim(\mlt{Z}\kt\mlt{Z}/n) = \bold{Q}_\bold{zz}$ and $\operatorname{plim}(\mlt{Z}\kt\kX/n) = \bold{Q}_\bold{zx}$ are well-behaved finite matrices.)\\
+
+
+\begin{equation*}
+\begin{split}
+\operatorname{plim}\bold{b}_{TSLS} &= \operatorname{plim}\left[\left(\hat{\mlt{X}}^{\prime} \hat{\mlt{X}}\right)^{-1} \hat{\mlt{X}}^{\prime} \mlt{y}\right] = \operatorname{plim}[(\kX\kt\kZ(\kZ\kt\kZ)^{-1}\kZ\kt\kX)^{-1}\kX\kt\kZ(\kZ\kt\kZ)^{-1}\kZ\kt\ky]\\
+&= \operatorname{plim} [(\kX\kt\kZ(\kZ\kt\kZ)^{-1}\kZ\kt\kX)^{-1}\kX\kt\kZ(\kZ\kt\kZ)^{-1}\kZ\kt(\kX\kbeta+\mgr{\varepsilon})]
+\end{split}
+\end{equation*}
+\begin{equation*}
+\begin{split}
+\Rightarrow \operatorname{plim} \bold{b}_{TSLS}=\kbeta + (\bold{Q}\kt_{\mlt{Z}\kX}(\bold{Q}_{\mlt{Z}\mlt{Z}})^{-1}\bold{Q}_{\mlt{Z}\kX})^{-1}\bold{Q}\kt_{\mlt{Z}\kX}(\bold{Q}_{\mlt{Z}\mlt{Z}})^{-1} \operatorname{plim}((1/n)\mlt{Z}\kt\mgr{\varepsilon})
+\end{split}
+\end{equation*}
+
+Since the instrument is derived such that $COV(\mlt{Z}_i , \mgr{\varepsilon})=0$, so $\operatorname{plim}(\frac{1}{n}\mlt{Z}\kt\mgr{\varepsilon})=0$ Then we have
+$\operatorname{plim} \bold{b}_{TSLS}=\kbeta$
+which is a consistent estimator.\\
+
+\item What would you use for a consistent estimator for $\sigma^{2}$ ? (show detailed expression)
+\ksp
+
+The Asymptotic variance  of $\kb_{TSLS}$ can be estimated by:
+\begin{equation*}
+\begin{split}
+& \hat{\mlt{V}}_a(\kb_{TSLS})=\hat{\sigma}^2 (\kX'\mlt{Z}(\mlt{Z}'\mlt{Z})^{ - 1} \mlt{Z}'\kX)^{ - 1} 
+\end{split}
+\end{equation*}
+$\hat{\sigma}^2$ is estimator for ${\sigma}^2$ and can be derived as:
+\begin{equation*}
+\begin{split}
+& \hat{\sigma}^2=\frac{{\hat{\mgr{\varepsilon}} '\hat{\mgr{\varepsilon} }}}{n}
+\end{split}
+\end{equation*}
+where residuals, $\hat{\mgr{\varepsilon}}$, can be derived as:
+\begin{equation*}
+\begin{split}
+& \hat{\mgr{\varepsilon}}=\ky - \kX \kb_{TSLS}
+\end{split}
+\end{equation*}
+Needless to say the original $\kX$ is used in the computation of the residuals. \\
+
+\item Outline in detail how a Hausman test and a Wu test could be performed to test $H_0:\varphi= 0$\\
+
+The Hausman test is a type of Wald test which examines if the difference between 2 sets of estimates arise from 2 different models, weighted by the difference in their asymptotic variance-covariance
+matrix, is "large enough" to reject the null hypothesis that they are the same.
+
+The rationale is that the first model considered is known to generate consistent estimates under OV-type problems or other mis-specification issues, while the second model is inconsistent if there are indeed OV
+type problems or mis-specifications. However, the first estimator is always less efficient than the second. So if there are no OV-type or mis-specification problems, it would be better to choose the second model.
+If there are OV type problems, we should use the first model (since consistency is generally more important than efficiency). 
+
+For the case at hand, the IV (or TSLS) model is "model 1" - consistent under OV-problems, however it is less efficient. The OLS model is "model 2" - more efficient, but inconsistent under OV-problems. The H-test
+examines if the two estimators are "close enough" to conclude that OLS is fine, i.e. that there are no OV type problems (the null hypothesis). If the weighted difference between the estimators is "too
+large", the test would reject the null.
+The H-test statistic is thus derived as:
+
+\begin{equation*}
+\begin{split}
+&  H = \mlt{d}'(\hat V_a (\mlt{b}_{TSLS} ) - \hat V_a (\mlt{b_{OLS}}))^{ - 1} \mlt{d} = \mlt{d}'(s^2 (\hat \kX'\hat \kX)^{-1}  - s^2 (\kX'\kX)^{ - 1} )^{ - 1} \mlt{d} \sim \chi ^2 (J)   
+\end{split}
+\end{equation*}
+where $\mlt{d} = (\mlt{b_{TSLS}}  - \kb_{OLS})$, $\hat {\kX} = \mlt{Z}(\mlt{Z}'\mlt{Z})^{ - 1} \mlt{Z}'\kX$, $s^2  = \frac{{\ke'\ke}}{{n - k}}$.\\
+
+
+When we fail to reject the null we mean that the difference between the estimators are not too large, and since TSLS gives consistent estimates, $\mlt{b_{TSLS}}  = \kb_{OLS}$ are consistent. Since $\kb_{OLS}$ is consistent  using equation 1 we must have:  
+\begin{equation*}
+\begin{split}
+& \operatorname{plim} \kb = \kbeta \Rightarrow \mlt{Q_{XX}}^{ - 1} \left[ {\begin{array}{*{20}c}
+   \mgr{\gamma}   \\
+   \mgr{\varphi}   \\
+\end{array}} \right] = \mlt{0} \Rightarrow \mgr{\gamma}=0 \mbox{ and } \mgr{\varphi}=0
+\end{split}
+\end{equation*}
+Therefore we can test $H_0 :  \mgr{\varphi} = 0$ with Hausman test and when we fail to reject the "Hausman test null" we fail to reject $H_0$ too. In addition, when we reject the "Hausman test null" we can claim that "either $\mgr{\gamma} \neq 0$ or $ \mgr{\varphi} \neq 0$ or both". In that case the alternative hypothesis is \textit{not} $H_1: \mgr{\varphi} \neq 0$. Even in this case we might have $\mgr{\varphi} =0$.  
+
+"Wu test" is an equivalent test that avoids the inverse problem of the Hausman test. we know that a rejection of the null hypothesis would reveal Omitted Variable problems in the OLS model. This  suggests that we should follow an IV approach. On the other hand if the null is not rejected, the OLS is fine. As in the case of the Hausman test, when we fail to reject the "Wu test null" we fail to reject $H_0 :  \mgr{\varphi} = 0$ but if we reject "Wu test null" we can just say that "either $\mgr{\gamma} \neq 0$ or $ \mgr{\varphi} \neq 0$ or both".  
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Instrumental Variables and Specification Tests in \kR}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Use Greene's quarterly macroeconomic data (data set "consumption” on our course web site).
+
+
+Consider the model  
+
+
+$y_{t}=\beta_{0}+\beta_{1} dpi_{t}+\beta_{2} cpi_{t}+\beta_{3} \text {rate}_{t}+\varepsilon_{t}$
+
+where \\
+$t$ indexes the current time period, \\
+$y=$ aggregate consumption (billion dollars, denoted as "realcons" in the variable list),\\
+$dpi=$ aggregate disposable income ("realdpi" in the list), \\
+$cpi=$ consumer price index, and \\
+$rate$ = real interest rate ("realint" in the list).
+
+You suspect that $dpi$ is correlated with the error term for the same time period. You decide to instrument it with $dpi$, and $y_{t-1}$, i.e. lagged dpi and lagged consumption.
+
+Use the procedure outlined in script \texttt{mod4s1bto} generate all needed lagged variables.
+
+<<R1,echo=TRUE, cache=FALSE>>=
+data <- read.table('/Users/nima/AAEC5126/data/consumption.txt', sep="\t", header=FALSE)
+
+colnames(data) <- c("year_", "quarter", "realgdp", "realcons","realinv", "realgov",
+                   "realdpi", "cpi_u", "m1", "tbill", "unemp", "pop", "infl", "realint")
+attach(data)
+@
+\begin{enumerate}
+\item Run the simple OLS model given in (1). Comment on the significance levels of the estimated coefficients. Are the signs of the significant coefficients as expected? Explain.
+
+<<R2,echo=TRUE,cache=FALSE>>=
+# Define variables
+n <- nrow(data)
+y <- realcons[2:n]
+ylag <- realcons[1:(n - 1)]
+dpi <- realdpi[2:n]
+cpi <- cpi_u[2:n]
+dpilag <- realdpi[1:(n - 1)]
+rate <- realint[2:n]
+n <- length(y)  #IMPORTANT - re-define n!
+#
+X <- cbind(rep(1, n), dpi, cpi, rate)
+k <- ncol(X)
+#
+bols <- solve((t(X)) %*% X) %*% (t(X) %*% y)# compute OLS estimator
+e <- y - X %*% bols # Get residuals.
+SSR <- (t(e) %*% e)#sum of squared residuals - should be minimized
+s2 <- (t(e) %*% e) / (n - k) #get the regression error (estimated variance of "eps").
+s2ols <- s2 #for Hausman test below
+Vb <- s2[1, 1] * solve((t(X)) %*% X) # get the estimated VCOV matrix of bols
+se_ols = sqrt(diag(Vb)) # get the standard erros for your coefficients;
+tval_ols = bols / se_ols # get your t-values.
+@
+
+<<R3,results="asis",echo=FALSE,cache=FALSE>>=
+tt <- data.frame(
+  col1 = c("constant", "dpi", "cpi", "rate"),
+  col2 = bols,
+  col3 = se_ols,
+  col4 = tval_ols
+)
+colnames(tt) <- c("variable", "estimate", "s.e.", "t")
+ttx <- xtable(tt, caption = "OLS output")
+digits(ttx) <- 5   #decimals to be shown for each column
+print(
+  ttx,
+  include.rownames = FALSE,
+  latex.environment = "center",
+  caption.placement = "top"
+)
+@
+
+As we can see the estimated coefficients are all significant at $1\%$ and $5\%$ levels, and the only constant term is not significant.
+The intuition: We know that when the rate increase, the aggregate consumption will decrease(people prefer to save money and have more income in future), which in this model we see that the sign of rate is negative. So, it makes sense.
+Also, when aggregate disposable income increases, we expect that consumption increase, which is this model the sign of  dpi is positive. 
+However, the estimated coefficient for cpi is positive, while it is depending on the elasticity of demand in the whole economy, the effect of an increase in cpi on the aggregate consumption value could be either positive or negative.
+
+\item Run the TSLS model with the instruments given above. Comment on any changes in coefficient estimates and significance levels compared to the OLS model.
+\ksp
+
+We run TSLS with the instruments given by the problem (dpi with the "lagged dpi" and the "lagged consumption").
+
+<<R4,echo=TRUE,cache=FALSE>>=
+# Build instrument matrix
+Z <- cbind(rep(1, n), cpi, rate, dpilag, ylag)
+Xhat <- Z %*% solve(t(Z) %*% Z) %*% t(Z) %*% X
+k <- ncol(Xhat)  #Don't forget to update k!
+#
+btsls <- solve((t(Xhat)) %*% Xhat) %*% (t(Xhat) %*% y)# compute OLS estimator
+e <- y - X %*% btsls # careful - don't use Xhat here!
+SSR <- (t(e) %*% e) #sum of squared residuals - should be minimized
+s2 <- (t(e) %*% e) / (n - k) #get the regression error (estimated variance of "eps").
+Vb <- s2[1, 1] * solve((t(Xhat)) %*% Xhat) # get the estimated VCOV matrix of bols
+se_tsls = sqrt(diag(Vb)) # get the standard erros for your coefficients;
+tval_tsls = btsls / se_tsls # get your t-values.
+@
+
+<<R5,results="asis",echo=FALSE,cache=FALSE>>=
+tt <- data.frame(
+  col1 = c("constant", "dpi", "cpi", "rate"),
+  col2 = btsls,
+  col3 = se_tsls,
+  col4 = tval_tsls
+)
+colnames(tt) <- c("variable", "estimate", "s.e.", "t")
+ttx <- xtable(tt, caption = "TSLS output")
+digits(ttx) <- 5   #decimals to be shown for each column
+print(
+  ttx,
+  include.rownames = FALSE,
+  latex.environment = "center",
+  caption.placement = "top"
+)
+@
+
+By comparing Tables 1 and 2, we realize that there is no significant change in the estimated coefficients, including the signs and  the values of the t-statistic. But we should pay attention that the coefficient estimate for dpi is a bit larger in TSLS in comparison to OLS, but thereof cpi and rate are smaller in magnitude in TSLS. The standard errors are close to each other, but regarding the significant levels, we could say that the coefficients of dpi and rate are more significant in TSLS whereas cpi is a bit less significant in TSLS.
+
+\ksp
+\item Perform a Hausman test. 
+  \begin{enumerate}[(a)]
+  \item State the null hypothesis $(H_0)$ and alternative hypothesis $(H_1)$ for this test.
+  
+  The null hypothesis ($H_0$) is that "the two models are the same". Thus:
+  \begin{equation}
+  H_0: \bold{b}_{\bold{TSLS}} - \bold{b}_{\bold{OLS}} =0 \\
+  \end{equation}
+  And alernative hypothesis ($H_1$) is "the two models are not the same, or:
+  \begin{equation}
+  H_0: \bold{b}_{\bold{TSLS}} - \bold{b}_{\bold{OLS}} \neq 0 \\
+  \end{equation}
+
+  \item Using the p-value generated by \kR to draw a conclusion for your $H_0$.\\
+
+<<R6,echo=TRUE,cache=FALSE>>=
+d <- btsls - bols
+W <- solve(t(Xhat) %*% Xhat) - solve(t(X) %*% X)
+H <- (t(d) %*% pseudoinverse(W) %*% d) / s2ols[1, 1]   #Note use of OLS s2
+J <- 1
+pval = 1 - pchisq(H, J)
+@
+
+The Hausman test statistic is equal to \Sexpr{round(H, digits=4)} with p-value \Sexpr{round(pval, digits=4)}: We reject the null hypothesis at $1\%$ and $5\%$ levels of significance, and we cannot say that the "two models give rise to the same coefficients".
+
+  \end{enumerate}
+  
+  \ksp
+  
+\item Perform a Wu test.
+  \begin{enumerate}[(a)]
+  \item State the null hypothesis $(H_0)$ and alternative hypothesis $(H_1)$ for this test.
+  
+  \ksp
+  Wu test proceeds in 2 steps:\\
+  \begin{enumerate} [i.]
+  \item 
+  Pick the troublemakers from $\kX$ and collect them in a new matrix, say $\kX ^ *$ . Regress each column in
+  $\kX ^ *$ against $\mlt{Z}$, "clean" columns of the original $\kX$ plus the instruments, and obtain the fitted values, i.e. generate $\hat{\kX} ^ * = \mlt{Z} ({\mlt{Z} ^ {\prime} \mlt{Z}}) ^  {-1} \mlt{Z}^\prime \kX ^ *$.\\
+  
+  \item
+  Regress $\ky$ against the original $\kX$ and $\hat{\kX}^*$.\\
+  
+  \end{enumerate}
+
+  The null hypothesis for this test is that the coefficients of $\hat{\kX}^*$ are jointly zero. (The alternative hypothesis will be that at least one coefficient in $\hat{\kX}^*$ is not zero). A rejection of the null would indicate OV problems in the OLS model, and would suggest switching to an IV approach. If the null is not rejected, then OLS is fine.\\
+
+  \ksp
+  
+  \item Using the p-value generated by \kR to draw a conclusion for your $H_0$.\\
+
+  <<R7,echo=TRUE,cache=FALSE>>=
+# Step 1: regress dpi on Z and capture predicted values
+dpihat <- Z %*% solve(t(Z) %*% Z) %*% t(Z) %*% dpi
+
+# Step 2: add predicted values to original regression
+X <- cbind(rep(1, n), dpi, cpi, rate, dpihat)
+k <- ncol(X)
+bwu <- solve((t(X)) %*% X) %*% (t(X) %*% y)# compute OLS estimator
+e <- y - X %*% bwu # Get residuals.
+s2 <- (t(e) %*% e) / (n - k) #get the regression error (estimated variance of "eps").
+Vb <- s2[1, 1] * solve((t(X)) %*% X) # get the estimated VCOV matrix of bols
+
+# Step 3: Perform F-test
+Rmat <- matrix(c(0, 0, 0, 0, 1), nrow = 1)
+q <- 0
+J <- nrow(Rmat)
+b <- bwu
+Fstat <- (1 / J) * t(Rmat %*% b - q) %*% 
+         solve(Rmat %*% Vb %*% t(Rmat)) %*% (Rmat %*% b - q)
+pval <- 1 - pf(Fstat, J, n - k)
+  @
+\ksp
+The Wu test statistic is \Sexpr{round(Fstat, digits=4)}.
+The  p-value of the test statistic is \Sexpr{round(pval, digits=4)}.  
+Since the P-value is small, Thus we reject the null hypothesis for  1\% and 5\% levels of significance, there exists OV problems in the OLS model, which suggest switching to IV approach.\\
+
+  \end{enumerate}
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Heteroskedasticity - \kR}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Sample data for the analysis of home prices as a function of home and neighborhood features are notorious for heteroskedasticity problems.  For example, as you can imagine, the value of certain home features and thus home prices are more likely to fluctuate more widely for larger homes.   
+
+Consider the data set “homeprice” (on our web site).  It contains observation on home prices and features for a Seattle suburb for home sales during 1985-1989.  There are 14 columns and 100 rows. 
+<<R8,echo=TRUE, cache=FALSE>>=
+data <- read.table('/Users/nima/AAEC5126/data/homeprice.txt', sep="\t", header=FALSE)
+
+colnames(data) <- c("id", "price", "ln_price", "tsqft","bedrms", "bathrms", "age",
+                   "garage", "view", "firepl", "porch", "distance", "sewer", "year")
+attach(data)
+@
+
+\begin{enumerate}[(a)]
+\item Run a generic OLS regression and show your output.
+
+<<R9,echo=TRUE, cache=FALSE>>=
+# Define variables
+n <- nrow(data)
+y <- price / 1000
+X <- cbind(rep(1, n), tsqft / 1000, bedrms, bathrms, garage, view, distance)
+k <- ncol(X)
+
+bols <- solve((t(X)) %*% X) %*% (t(X) %*% y)# compute OLS estimator
+e <- y - X %*% bols # Get residuals.
+SSR <- (t(e) %*% e)#sum of squared residuals - should be minimized
+s2 <- (t(e) %*% e) / (n - k) #get the regression error (estimated variance of "eps").
+#s2ols<-s2 #for Hausman test below
+Vb <- s2[1, 1] * solve((t(X)) %*% X) # the estimated VCOV matrix of bols
+se_ols = sqrt(diag(Vb)) # get the standard erros for your coefficients;
+tval_ols = bols / se_ols # get your t-values.
+@
+
+<<R10,results="asis",echo=FALSE,cache=FALSE>>=
+tt <-
+  data.frame(col1 = c(
+      "constant", "tsqft/1000",
+      "bedrms", "bathrms",
+      "garage", "view",
+      "distance"),
+    col2 = bols, col3 = se_ols, col4 = tval_ols)
+colnames(tt) <- c("variable", "estimate", "s.e.", "t")
+ttx <- xtable(tt, caption = "OLS output")
+digits(ttx) <- 5   #decimals to be shown for each column
+print(
+  ttx,
+  include.rownames = FALSE,
+  latex.environment = "center",
+  caption.placement = "top"
+)
+@
+
+\item You suspect potential HSK, if present, to be related to total square footage (tsqft), number of bedrooms, and number of bathrooms.  Derive a residual-vs.-predictor plot for each, using \texttt{mod4\_2b} for guidance. Do the plots provide indication for HSK?  Make sure the graphs are added to your output.
+
+<<R11,fig=TRUE,include=TRUE,echo=FALSE,width=10,height=10>>=
+l <- layout(matrix(c(1, 2, 3), 3, 1, byrow = TRUE),
+         widths = c(3, 1),
+         heights = c(1, 1))
+plot(
+  e ~ tsqft,
+  main = "residual vs. total square footage",
+  xlab = "tsqft",
+  ylab = "e",
+  # xlim = c(-10, 10),
+  # ylim = c(-10, 10)
+)
+
+plot(
+  e ~ bedrms,
+  main = "residual vs. number of bedrooms",
+  xlab = "bedrms",
+  ylab = "e",
+  # xlim = c(-10, 10),
+  # ylim = c(-10, 10)
+)
+
+plot(
+  e ~ bathrms,
+  main = "residual vs. number of bathrooms",
+  xlab = "bathrms",
+  ylab = "e",
+  # xlim = c(-10, 10),
+  # ylim = c(-10, 10)
+)
+@
+
+The three residual-vs.-predictor plots are depicted for each of these predictors. It can be deduced that HSK exists for all three variables. There is strong HSK for \texttt{bedrms} and \texttt{bathrms} due to apparent increasing variance. For \texttt{tsqft}, HSK is not strong but we can further inspect this via tests.
+
+\item Perform a Breusch-Pagan score test using the same three explanatory variables as HSK-driving suspects. Show the test results and state your test decision.
+
+<<R12,echo=TRUE, cache=FALSE>>=
+int <- (t(e) %*% e) / n
+g <- (e ^ 2 / (int[1, 1])) - 1
+#capture variables you think may be related to HSK
+Z <- cbind(rep(n, 1), tsqft/1000, bedrms, bathrms)
+kz <- ncol(Z)
+LM <- (1 / 2) * (t(g) %*% Z %*% solve(t(Z) %*% Z) %*% t(Z) %*% g)
+pval = 1 - pchisq(LM, kz - 1)
+@
+
+The BP statistic for this test is \Sexpr{round(LM, digits=4)} and with degree of freedom equal to 3 it will result in the corresponding p-value of \Sexpr{round(pval, digits=4)}. That is we reject the null, implying the existence of HSK.
+
+\item Then perform a White test, capture the results and state your test decision.  Make sure to include all \textit{permissible} interactions in your augmented data matrix.
+
+<<R13,echo=TRUE, cache=FALSE>>=
+yaux <- e ^ 2 #use squared OLS residuals as dep.var. in White test
+#construct all permissible squared terms from the original X
+Xsq <- cbind(bedrms ^ 2, bathrms ^ 2, distance ^ 2) 
+
+
+#construct all permissible interaction terms from the original X
+# first for all continuous variables
+Xc1 <- tsqft/1000 * bedrms
+Xc2 <- tsqft/1000 * bathrms
+Xc3 <- tsqft/1000 * distance
+Xc4 <- bedrms * bathrms
+Xc5 <- bedrms * distance
+Xc6 <- bathrms * distance
+#
+#next for the continuous with indicators
+dmat <- cbind(garage, view)
+Xcitsqft <- matrix(rep(tsqft/1000, 2), nrow = n) * dmat
+Xcibedrms <- matrix(rep(bedrms, 2), nrow = n) * dmat
+Xcibathrms <- matrix(rep(bathrms, 2), nrow = n) * dmat
+Xcidistance <- matrix(rep(distance, 2), nrow = n) * dmat
+#
+#Next: Run auxiliary regression and capture R^2
+Xaux <-cbind(X,
+        Xsq,
+        Xc1,
+        Xc2,
+        Xc3,
+        Xc4,
+        Xc5,
+        Xc6,
+        Xcitsqft,
+        Xcibedrms,
+        Xcibathrms,
+        Xcidistance)
+kaux <- ncol(Xaux)
+baux <- solve((t(Xaux)) %*% Xaux) %*% (t(Xaux) %*% yaux)
+eaux <- yaux - Xaux %*% baux
+I <- diag(n)
+i <- rep(1, n)
+Mo <- I - i %*% solve(t(i) %*% i) %*% t(i)
+SSE <- t(eaux) %*% eaux
+SST <- t(yaux) %*% Mo %*% yaux
+R2 <- 1 - SSE / SST
+Wh <- n * R2
+pval = 1 - pchisq(Wh, kaux - 1)
+@
+
+The White statistic for this test is \Sexpr{round(Wh, digits=4)} and with degree of freedom equal to \Sexpr{kaux-1} it will result in the corresponding p-value of \Sexpr{round(pval, digits=4)}. That is we reject the null, implying the existence of HSK.
+
+\item Estimate a robust OLS model with White-corrected standard errors. Show your output.
+<<R14,echo=TRUE, cache=FALSE>>=
+bols <- solve((t(X)) %*% X) %*% (t(X) %*% y)
+e <- as.vector(y - X %*% bols)
+S <- diag(e ^ 2)
+Vb <- solve((t(X)) %*% X) %*% t(X) %*% S %*% X %*% solve((t(X)) %*% X)
+se_rols = sqrt(diag(Vb))
+tval_rols = bols / se_rols
+@
+
+<<R15,results="asis",echo=FALSE,cache=FALSE>>=
+ttols <- data.frame(
+  col1 = c("constant", "tsqft/1000", "bedrms", "bathrms",
+           "garage", "view", "distance"),
+  col2 = bols, col3 = se_rols, col4 = tval_rols
+)
+colnames(ttols) <- c("variable", "estimate", "s.e.", "t")
+ttx <- xtable(ttols, caption = "Robust OLS output")
+digits(ttx) <- 5   #decimals to be shown for each column
+print(
+  ttx,
+  include.rownames = FALSE,
+  latex.environment = "center",
+  caption.placement = "top"
+)
+@
+
+\item Using the same HSK suspects, estimate your model through FGLS, using a multiplicative (don't forget the Harvey correction) form to model HSK.  Show your output.
+
+<<R16,echo=TRUE, cache=FALSE>>=
+#Step 1: Consistent estimate of Omega
+yaux <- log(e ^ 2)
+Xaux <- cbind(rep(n, 1), tsqft/1000, bedrms, bathrms)
+kaux <- ncol(Xaux)
+baux <- solve((t(Xaux)) %*% Xaux) %*% (t(Xaux) %*% yaux)
+sigvec <- as.vector(exp(Xaux %*% baux) + 1.2704) #Harvey's suggested correction
+Om <- diag(sigvec)
+#
+#Step 2: GLS
+bgls <- solve((t(X)) %*% solve(Om) %*% X) %*% (t(X) %*% solve(Om) %*% y)
+e <- y - X %*% bgls
+Vb <- solve((t(X)) %*% solve(Om) %*% X)
+se_fgls = sqrt(diag(Vb))
+tval_fgls = bgls / se_fgls
+@
+
+<<R17,results="asis",echo=FALSE,cache=FALSE>>=
+ttgls <-
+  data.frame(
+    col1 = c("constant", "tsqft/1000", "bedrms", "bathrms",
+           "garage", "view", "distance"),
+    col2 = bgls,
+    col3 = se_fgls,
+    col4 = tval_fgls
+  )
+colnames(ttgls) <- c("variable", "estimate", "s.e.", "t")
+ttx <- xtable(ttgls, caption = "FGLS output")
+digits(ttx) <- 5   #decimals to be shown for each column
+print(
+  ttx,
+  include.rownames = FALSE,
+  latex.environment = "center",
+  caption.placement = "top"
+)
+@
+
+\item Compare your original OLS estimates, the White corrected estimates, and the FGLS results and elaborate:
+
+<<R18,results="asis",echo=FALSE,cache=FALSE>>=
+ttcompare <- data.frame(
+    col1 = c("constant", "tsqft/1000", "bedrms", "bathrms",
+           "garage", "view", "distance"),
+    col2 = se_ols,
+    col3 = se_rols,
+    col4 = se_fgls,
+    col5 = tval_ols,
+    col6 = tval_rols,
+    col7 = tval_fgls
+  )
+colnames(ttcompare) <- c("variable", "s.e. (OLS)", "s.e. (rOLS)", "s.e. (FGLS)", "t (OLS)", "t (rOLS)", "t (FGLS)")
+
+ttx <- xtable(ttcompare, caption = "Comparison")
+digits(ttx) <- 5   #decimals to be shown for each column
+print(
+  ttx,
+  include.rownames = FALSE,
+  latex.environment = "center",
+  caption.placement = "top"
+)
+@
+
+\begin{enumerate}[(a)]
+\item Compare the s.e.’s and t-values between OLS and robust OLS. Are there any noteworthy changes in significance levels? In light of your finding, how does the naive OLS model mis-represent the significance of one or more coefficients?
+
+\ksp
+The t-values and standard errors are almost the same. The only difference is for the coefficient of \texttt{view} since its standard error is different between that of the OLS and robust OLS, the t-values are changing. This leads to different interpretations. For OLS, \texttt{view} iss statistically significant, but this is not the case for robust OLS.
+
+\ksp
+\item Compare the s.e.’s and t-values between the robust OLS and the FGLS model. Are there any noteworthy changes in significance levels?
+
+\ksp
+All the standard errors are smaller for FGLS. Since coefficient estimates are almost the same, this leads to significant estimates for all the variables of the FGLS model at both levels (1\% and 5\%). (t-values are larger for all coefficients in FGLS) However, for robust OLS, estimate for \texttt{Garage} is insignificant at both levels and \texttt{View} is only significant at 5\%.
+
+\ksp
+\item Assume the main focus of your research is on the effect of “view” and “distance” on home prices.  Overall, which model would you choose? (think: Are the gains in significance via FGLS worth the risk of misspecification bias? What about the sample size?).
+
+\ksp
+Even though the two methods will give us the same result for \texttt{Distance}, they give different results for \texttt{View}. (At least at 1\% significance level)
+
+The Breusch-Pagan and White tests indicate the presence of HSK. We have two options: 1) ignoring the actual form or cause of HSK and choose robust OLS, or 2) assume a specific form of HSK and estimate a HSK-adjusted model via FGLS. In the case of the latter, if the assumption on the underlying form of HSK is incorrect, $\Omega$ will be misspecified, leading again to an inconsistent estimate. Therefore, we prefer to work with a less efficient but consistent robust model. Both FGLS and robust OLS are asymptotic methods. In our case we have a sample size of 100, hence we cannot merely rely on FGLS and/or robust OLS. 
+
+At last, by taking into account all the aforementioned reasons, although the estimate given by FGLS (for these two variables) seem to be more precise and having smaller standard errors, we would prefer robust OLS.
+\end{enumerate}
+
+\end{enumerate}
+\end{document}
